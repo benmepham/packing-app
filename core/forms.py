@@ -35,7 +35,7 @@ class TripForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Trip name (e.g., 'Summer vacation 2024')",
+                "placeholder": "Trip name (e.g., 'Japan 2025')",
             }
         ),
     )
