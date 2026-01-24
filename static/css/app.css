@@ -47,11 +47,6 @@
     display: block;
 }
 
-/* Category accordion improvements */
-.accordion-button:not(.collapsed) {
-    background-color: rgba(13, 110, 253, 0.1);
-}
-
 /* Mobile responsive adjustments */
 @media (max-width: 576px) {
     .btn-group-responsive {
@@ -113,7 +108,7 @@
 }
 
 .list-group-item:hover .edit-icon,
-.accordion-header:hover .edit-icon {
+.card-header:hover .edit-icon {
     opacity: 0.8;
 }
 
@@ -135,13 +130,13 @@
     opacity: 1;
 }
 
-/* Fix for edit button in accordion header */
-.accordion-button .btn-link {
+/* Fix for edit button in card header */
+.card-header .btn-link {
     text-decoration: none;
     line-height: 1;
 }
 
-.accordion-button .btn-link:hover {
+.card-header .btn-link:hover {
     color: #0d6efd !important;
 }
 

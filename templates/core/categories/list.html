@@ -32,73 +32,64 @@
 
 <!-- Categories List -->
 {% if categories %}
-<div class="accordion" id="categoriesAccordion">
+<div class="categories-list">
     {% for category in categories %}
-    <div class="accordion-item" data-category-id="{{ category.pk }}">
-        <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" 
-                    data-bs-toggle="collapse" data-bs-target="#category{{ category.pk }}">
-                <span class="me-auto d-flex align-items-center">
-                    <strong class="category-name">{{ category.name }}</strong>
-                    <button type="button" class="btn btn-sm btn-link text-muted edit-icon ms-2 p-0"
-                            onclick="event.stopPropagation(); editCategory({{ category.pk }}, this)"
-                            title="Edit category name">
+    <div class="card mb-3" data-category-id="{{ category.pk }}">
+        <div class="card-header d-flex align-items-center">
+            <h5 class="mb-0 category-name">{{ category.name }}</h5>
+            <button type="button" class="btn btn-sm btn-link text-muted edit-icon ms-2 p-0"
+                    onclick="editCategory({{ category.pk }}, this)"
+                    title="Edit category name">
+                <i class="bi bi-pencil"></i>
+            </button>
+            <span class="badge bg-secondary ms-auto">{{ category.items.count }} items</span>
+        </div>
+        
+        <!-- Items List -->
+        <ul class="list-group list-group-flush" id="items-{{ category.pk }}">
+            {% for item in category.items.all %}
+            <li class="list-group-item d-flex justify-content-between align-items-center" 
+                data-item-id="{{ item.pk }}">
+                <span class="item-name">{{ item.name }}</span>
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-sm btn-outline-secondary edit-icon" 
+                            onclick="editCategoryItem({{ category.pk }}, {{ item.pk }}, this)"
+                            title="Edit item">
                         <i class="bi bi-pencil"></i>
                     </button>
-                    <span class="badge bg-secondary ms-2">{{ category.items.count }} items</span>
-                </span>
+                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                            onclick="deleteItem({{ category.pk }}, {{ item.pk }}, this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted" id="empty-{{ category.pk }}">
+                No items yet. Add some below!
+            </li>
+            {% endfor %}
+        </ul>
+
+        <div class="card-footer">
+            <!-- Add Item Form -->
+            <form class="row g-2 mb-2" onsubmit="return handleAddItem(event, {{ category.pk }})">
+                <div class="col">
+                    <input type="text" class="form-control form-control-sm" 
+                           id="new-item-{{ category.pk }}" 
+                           placeholder="New item name" required>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-plus-lg"></i> Add
+                    </button>
+                </div>
+            </form>
+
+            <!-- Delete Category -->
+            <button type="button" class="btn btn-sm btn-outline-danger" 
+                    onclick="deleteCategory({{ category.pk }}, this)">
+                <i class="bi bi-trash"></i> Delete Category
             </button>
-        </h2>
-        <div id="category{{ category.pk }}" class="accordion-collapse collapse" 
-             data-bs-parent="#categoriesAccordion">
-            <div class="accordion-body">
-                <!-- Items List -->
-                <ul class="list-group list-group-flush mb-3" id="items-{{ category.pk }}">
-                    {% for item in category.items.all %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center" 
-                        data-item-id="{{ item.pk }}">
-                        <span class="item-name">{{ item.name }}</span>
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-sm btn-outline-secondary edit-icon" 
-                                    onclick="editCategoryItem({{ category.pk }}, {{ item.pk }}, this)"
-                                    title="Edit item">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-danger" 
-                                    onclick="deleteItem({{ category.pk }}, {{ item.pk }}, this)">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </li>
-                    {% empty %}
-                    <li class="list-group-item text-muted" id="empty-{{ category.pk }}">
-                        No items yet. Add some below!
-                    </li>
-                    {% endfor %}
-                </ul>
-
-                <!-- Add Item Form -->
-                <form class="row g-2" onsubmit="return handleAddItem(event, {{ category.pk }})">
-                    <div class="col">
-                        <input type="text" class="form-control" 
-                               id="new-item-{{ category.pk }}" 
-                               placeholder="New item name" required>
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-outline-primary">
-                            <i class="bi bi-plus-lg"></i> Add
-                        </button>
-                    </div>
-                </form>
-
-                <hr>
-
-                <!-- Delete Category -->
-                <button type="button" class="btn btn-sm btn-outline-danger" 
-                        onclick="deleteCategory({{ category.pk }}, this)">
-                    <i class="bi bi-trash"></i> Delete Category
-                </button>
-            </div>
         </div>
     </div>
     {% endfor %}
@@ -134,8 +125,8 @@ async function handleAddItem(event, categoryId) {
         input.focus();
         
         // Update item count badge
-        const accordion = document.querySelector(`[data-category-id="${categoryId}"]`);
-        const badge = accordion.querySelector('.badge');
+        const card = document.querySelector(`[data-category-id="${categoryId}"]`);
+        const badge = card.querySelector('.badge');
         const count = listElement.querySelectorAll('[data-item-id]').length;
         badge.textContent = `${count} items`;
     } catch (error) {
