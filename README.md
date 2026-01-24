@@ -25,7 +25,7 @@ A Django web application for managing packing lists for trips. Create reusable c
 
 - Python 3.13+ 
 - [uv](https://docs.astral.sh/uv/) package manager
-- [Task](https://taskfile.dev/) (optional, for running common commands)
+- [mise](https://mise.jdx.dev/) (optional, for running common tasks)
 
 ### Installation
 
@@ -110,8 +110,8 @@ packing-app/
 
 ```bash
 uv run python manage.py test
-# or with Task
-task test
+# or with mise
+mise run test
 ```
 
 ### Code Quality
@@ -120,31 +120,31 @@ This project uses [ruff](https://docs.astral.sh/ruff/) for linting/formatting an
 
 ```bash
 # Run all checks
-task check
+mise run check
 
 # Or individually
-task lint        # Run ruff linter
-task format      # Format code with ruff  
-task typecheck   # Run mypy
+mise run lint        # Run ruff linter
+mise run format      # Format code with ruff  
+mise run typecheck   # Run mypy
 
 # Auto-fix issues
-task fix         # Fix lint issues and format code
+mise run fix         # Fix lint issues and format code
 ```
 
 ### Available Tasks
 
-Run `task --list` to see all available commands:
+Run `mise tasks` to see all available commands:
 
 | Task | Description |
 |------|-------------|
-| `task dev` | Run the development server |
-| `task migrate` | Run database migrations |
-| `task db` | Run makemigrations then migrate |
-| `task test` | Run all tests |
-| `task check` | Run all checks (lint, format, typecheck) |
-| `task fix` | Auto-fix lint and format issues |
-| `task shell` | Open Django shell |
-| `task setup` | Initial project setup |
+| `mise run dev` | Run the development server |
+| `mise run migrate` | Run database migrations |
+| `mise run db` | Run makemigrations then migrate |
+| `mise run test` | Run all tests |
+| `mise run check` | Run all checks (lint, format, typecheck) |
+| `mise run fix` | Auto-fix lint and format issues |
+| `mise run shell` | Open Django shell |
+| `mise run setup` | Initial project setup |
 
 ## Usage
 
