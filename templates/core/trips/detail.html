@@ -6,17 +6,22 @@
 <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'core:trip_list' %}">Trips</a></li>
-        <li class="breadcrumb-item active">{{ trip.name }}</li>
+        <li class="breadcrumb-item active trip-name-breadcrumb">{{ trip.name }}</li>
     </ol>
 </nav>
 
 <div class="d-flex justify-content-between align-items-start mb-4">
     <div>
-        <h1>
+        <h1 class="d-flex align-items-center">
             {% if trip.is_complete %}
-            <i class="bi bi-check-circle-fill text-success"></i>
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
             {% endif %}
-            {{ trip.name }}
+            <span class="trip-name">{{ trip.name }}</span>
+            <button type="button" class="btn btn-sm btn-link text-muted edit-icon ms-2 p-0"
+                    onclick="editTripName({{ trip.pk }}, this)"
+                    title="Edit trip name">
+                <i class="bi bi-pencil"></i>
+            </button>
         </h1>
         <p class="text-muted mb-0">Created {{ trip.created_at|date:"M d, Y" }}</p>
     </div>

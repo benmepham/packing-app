@@ -292,12 +292,29 @@ function createInlineEdit(textElement, currentValue, onSave) {
 
 // Edit category name
 function editCategory(categoryId, button) {
-    const accordion = button.closest('.accordion-item');
-    const nameElement = accordion.querySelector('.category-name');
+    const card = button.closest('.card');
+    const nameElement = card.querySelector('.category-name');
     const currentName = nameElement.textContent.trim();
     
     createInlineEdit(nameElement, currentName, async (newName) => {
         await apiRequest(`/api/categories/${categoryId}/`, 'PATCH', { name: newName });
+    });
+}
+
+// Edit trip name
+function editTripName(tripId, button) {
+    const nameElement = document.querySelector('.trip-name');
+    const currentName = nameElement.textContent.trim();
+    
+    createInlineEdit(nameElement, currentName, async (newName) => {
+        await apiRequest(`/api/trips/${tripId}/`, 'PATCH', { name: newName });
+        // Also update the breadcrumb
+        const breadcrumb = document.querySelector('.trip-name-breadcrumb');
+        if (breadcrumb) {
+            breadcrumb.textContent = newName;
+        }
+        // Update the page title
+        document.title = `${newName} - Packing App`;
     });
 }
 
