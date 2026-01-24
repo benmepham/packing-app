@@ -18,6 +18,10 @@ run = "uv run python manage.py makemigrations"
 description = "Run makemigrations then migrate"
 depends = ["makemigrations", "migrate"]
 
+[tasks.createsuperuser]
+description = "Create a superuser"
+run = "uv run python manage.py createsuperuser"
+
 [tasks.test]
 description = "Run all tests"
 run = "uv run python manage.py test"
@@ -57,10 +61,6 @@ depends = ["lint:fix", "format"]
 [tasks.shell]
 description = "Open Django shell"
 run = "uv run python manage.py shell"
-
-[tasks.createsuperuser]
-description = "Create a superuser"
-run = "uv run python manage.py createsuperuser"
 
 [tasks.collectstatic]
 description = "Collect static files"
