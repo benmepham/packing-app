@@ -95,6 +95,7 @@
 .empty-state i {
     font-size: 4rem;
     margin-bottom: 1rem;
+    display: block;
 }
 
 /* Edit icon styling */
