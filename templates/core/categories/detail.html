@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} - Packing App{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'core:category_list' %}">Categories</a></li>
+        <li class="breadcrumb-item active">{{ category.name }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>{{ category.name }}</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <ul class="list-group list-group-flush mb-3" id="items-{{ category.pk }}">
+            {% for item in category.items.all %}
+            <li class="list-group-item d-flex justify-content-between align-items-center" 
+                data-item-id="{{ item.pk }}">
+                <span>{{ item.name }}</span>
+                <button type="button" class="btn btn-sm btn-outline-danger" 
+                        onclick="deleteItem({{ category.pk }}, {{ item.pk }}, this)">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted" id="empty-{{ category.pk }}">
+                No items yet. Add some below!
+            </li>
+            {% endfor %}
+        </ul>
+
+        <form class="row g-2" onsubmit="return handleAddItem(event, {{ category.pk }})">
+            <div class="col">
+                <input type="text" class="form-control" 
+                       id="new-item-{{ category.pk }}" 
+                       placeholder="New item name" required>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="bi bi-plus-lg"></i> Add Item
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function handleAddItem(event, categoryId) {
+    event.preventDefault();
+    const input = document.getElementById(`new-item-${categoryId}`);
+    const itemName = input.value.trim();
+    if (!itemName) return false;
+
+    const listElement = document.getElementById(`items-${categoryId}`);
+    
+    try {
+        const emptyMsg = document.getElementById(`empty-${categoryId}`);
+        if (emptyMsg) emptyMsg.remove();
+
+        await addItemToCategory(categoryId, itemName, listElement);
+        input.value = '';
+        input.focus();
+    } catch (error) {
+        console.error('Failed to add item:', error);
+    }
+
+    return false;
+}
+</script>
+{% endblock %}
