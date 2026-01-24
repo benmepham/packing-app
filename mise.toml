@@ -1,0 +1,83 @@
+[tools]
+gh = "latest"
+uv = "latest"
+
+[tasks.dev]
+description = "Run the development server"
+run = "uv run python manage.py runserver"
+
+[tasks.migrate]
+description = "Run database migrations"
+run = "uv run python manage.py migrate"
+
+[tasks.makemigrations]
+description = "Create new migrations"
+run = "uv run python manage.py makemigrations"
+
+[tasks.db]
+description = "Run makemigrations then migrate"
+depends = ["makemigrations", "migrate"]
+
+[tasks.test]
+description = "Run all tests"
+run = "uv run python manage.py test"
+
+[tasks."test:verbose"]
+description = "Run tests with verbose output"
+run = "uv run python manage.py test -v 2"
+
+[tasks.lint]
+description = "Run ruff linter"
+run = "uv run ruff check ."
+
+[tasks."lint:fix"]
+description = "Run ruff linter and fix auto-fixable issues"
+run = "uv run ruff check . --fix"
+
+[tasks.format]
+description = "Format code with ruff"
+run = "uv run ruff format ."
+
+[tasks."format:check"]
+description = "Check code formatting without making changes"
+run = "uv run ruff format . --check"
+
+[tasks.typecheck]
+description = "Run mypy type checker"
+run = "uv run mypy ."
+
+[tasks.check]
+description = "Run all checks (lint, format check, typecheck)"
+depends = ["lint", "format:check", "typecheck"]
+
+[tasks.fix]
+description = "Fix all auto-fixable issues (lint and format)"
+depends = ["lint:fix", "format"]
+
+[tasks.shell]
+description = "Open Django shell"
+run = "uv run python manage.py shell"
+
+[tasks.createsuperuser]
+description = "Create a superuser"
+run = "uv run python manage.py createsuperuser"
+
+[tasks.collectstatic]
+description = "Collect static files"
+run = "uv run python manage.py collectstatic --noinput"
+
+[tasks.clean]
+description = "Clean up Python cache files"
+run = """
+find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+find . -type f -name "*.pyc" -delete 2>/dev/null || true
+find . -type f -name "*.pyo" -delete 2>/dev/null || true
+"""
+
+[tasks.setup]
+description = "Initial project setup (install deps, migrate, check)"
+run = """
+uv sync
+mise run migrate
+uv run python manage.py check
+"""
