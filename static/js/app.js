@@ -80,14 +80,32 @@ function updateTripProgress(tripId) {
     const progressBar = document.querySelector(`[data-trip-progress="${tripId}"]`);
     if (!progressBar) return;
     
-    const checkboxes = document.querySelectorAll(`[data-trip-id="${tripId}"] input[type="checkbox"]`);
-    const total = checkboxes.length;
-    const packed = Array.from(checkboxes).filter(cb => cb.checked).length;
+    // Find all item checkboxes within cards that have data-trip-id
+    // Each category card and the custom items card have this attribute
+    const tripCards = document.querySelectorAll(`[data-trip-id="${tripId}"]`);
+    let total = 0;
+    let packed = 0;
+    
+    tripCards.forEach(card => {
+        const checkboxes = card.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            total++;
+            if (cb.checked) packed++;
+        });
+    });
+    
     const percentage = total > 0 ? Math.round((packed / total) * 100) : 0;
     
     progressBar.style.width = `${percentage}%`;
     progressBar.setAttribute('aria-valuenow', percentage);
     progressBar.textContent = `${percentage}%`;
+    
+    // Update progress bar color based on completion
+    if (percentage === 100) {
+        progressBar.classList.add('bg-success');
+    } else {
+        progressBar.classList.remove('bg-success');
+    }
     
     // Update counter if present
     const counter = document.querySelector(`[data-trip-counter="${tripId}"]`);
