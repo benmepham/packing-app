@@ -121,7 +121,13 @@ Run tests with `uv run python manage.py test`. Tests should cover:
 - View authorization (users can only see their own data)
 - API endpoints
 
+## Updating Documentation
+
+Update README.md and AGENTS.md where relevant.
+
 ## Git Commits
+
+Always make commits as you go.
 
 Always include this footer in commit messages:
 

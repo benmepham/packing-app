@@ -120,7 +120,3 @@ uv run python manage.py test
 5. **Pack your bag** and tick off items as you go
 6. **Add custom items** if you need something not in your categories
 7. **Reuse trips as templates** for future similar trips
-
-## License
-
-MIT
