@@ -360,6 +360,35 @@ async function deleteTripItem(tripId, itemId, button) {
     }
 }
 
+// Initialize "Select All" checkbox for category selection (trip create page)
+function initSelectAllCategories() {
+    const selectAllCheckbox = document.getElementById('select-all-categories');
+    const categoryCheckboxes = document.querySelectorAll('input[name="categories"]');
+    
+    if (selectAllCheckbox && categoryCheckboxes.length > 0) {
+        // Update "Select All" checkbox state based on individual checkboxes
+        function updateSelectAllState() {
+            const allChecked = Array.from(categoryCheckboxes).every(cb => cb.checked);
+            const someChecked = Array.from(categoryCheckboxes).some(cb => cb.checked);
+            selectAllCheckbox.checked = allChecked;
+            selectAllCheckbox.indeterminate = someChecked && !allChecked;
+        }
+        
+        // Toggle all checkboxes when "Select All" is clicked
+        selectAllCheckbox.addEventListener('change', function() {
+            categoryCheckboxes.forEach(cb => cb.checked = this.checked);
+        });
+        
+        // Update "Select All" state when individual checkboxes change
+        categoryCheckboxes.forEach(cb => {
+            cb.addEventListener('change', updateSelectAllState);
+        });
+        
+        // Set initial state
+        updateSelectAllState();
+    }
+}
+
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
     // Auto-hide alerts after 5 seconds
@@ -370,4 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
             bsAlert.close();
         }, 5000);
     });
+    
+    // Initialize select all categories (trip create page)
+    initSelectAllCategories();
 });
