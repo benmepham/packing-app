@@ -38,8 +38,13 @@
         <h2 class="accordion-header">
             <button class="accordion-button collapsed" type="button" 
                     data-bs-toggle="collapse" data-bs-target="#category{{ category.pk }}">
-                <span class="me-auto">
-                    <strong>{{ category.name }}</strong>
+                <span class="me-auto d-flex align-items-center">
+                    <strong class="category-name">{{ category.name }}</strong>
+                    <button type="button" class="btn btn-sm btn-link text-muted edit-icon ms-2 p-0"
+                            onclick="event.stopPropagation(); editCategory({{ category.pk }}, this)"
+                            title="Edit category name">
+                        <i class="bi bi-pencil"></i>
+                    </button>
                     <span class="badge bg-secondary ms-2">{{ category.items.count }} items</span>
                 </span>
             </button>
@@ -52,11 +57,18 @@
                     {% for item in category.items.all %}
                     <li class="list-group-item d-flex justify-content-between align-items-center" 
                         data-item-id="{{ item.pk }}">
-                        <span>{{ item.name }}</span>
-                        <button type="button" class="btn btn-sm btn-outline-danger" 
-                                onclick="deleteItem({{ category.pk }}, {{ item.pk }}, this)">
-                            <i class="bi bi-trash"></i>
-                        </button>
+                        <span class="item-name">{{ item.name }}</span>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-sm btn-outline-secondary edit-icon" 
+                                    onclick="editCategoryItem({{ category.pk }}, {{ item.pk }}, this)"
+                                    title="Edit item">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                    onclick="deleteItem({{ category.pk }}, {{ item.pk }}, this)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
                     </li>
                     {% empty %}
                     <li class="list-group-item text-muted" id="empty-{{ category.pk }}">

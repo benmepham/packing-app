@@ -68,18 +68,35 @@
             </div>
             <ul class="list-group list-group-flush">
                 {% for item in trip_category.items.all %}
-                <li class="list-group-item {% if item.is_packed %}item-packed{% endif %} {% if item.is_custom %}custom-item{% endif %}">
+                <li class="list-group-item {% if item.is_packed %}item-packed{% endif %} {% if item.is_custom %}custom-item{% endif %}"
+                    data-item-id="{{ item.pk }}">
                     <div class="form-check d-flex align-items-center">
                         <input class="form-check-input" type="checkbox" 
                                id="item-{{ item.pk }}"
                                {% if item.is_packed %}checked{% endif %}
                                onchange="toggleItemPacked({{ trip.pk }}, {{ item.pk }}, this)">
                         <label class="form-check-label flex-grow-1" for="item-{{ item.pk }}">
-                            {{ item.name }}
+                            <span class="item-name">{{ item.name }}</span>
                             {% if item.is_custom %}
                             <span class="badge bg-warning text-dark">Custom</span>
                             {% endif %}
                         </label>
+                        <div class="btn-group btn-group-sm trip-item-actions">
+                            <button type="button" class="btn btn-sm btn-outline-secondary edit-icon" 
+                                    onclick="editTripItem({{ trip.pk }}, {{ item.pk }}, this)"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Edit for this trip only">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                    onclick="deleteTripItem({{ trip.pk }}, {{ item.pk }}, this)"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Remove from this trip">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
                     </div>
                 </li>
                 {% empty %}
@@ -105,7 +122,8 @@
             </div>
             <ul class="list-group list-group-flush" id="custom-items-list">
                 {% for item in custom_items %}
-                <li class="list-group-item {% if item.is_packed %}item-packed{% endif %} custom-item">
+                <li class="list-group-item {% if item.is_packed %}item-packed{% endif %} custom-item"
+                    data-item-id="{{ item.pk }}">
                     <div class="d-flex align-items-center">
                         <div class="form-check flex-grow-1">
                             <input class="form-check-input" type="checkbox" 
@@ -113,8 +131,24 @@
                                    {% if item.is_packed %}checked{% endif %}
                                    onchange="toggleItemPacked({{ trip.pk }}, {{ item.pk }}, this)">
                             <label class="form-check-label" for="item-{{ item.pk }}">
-                                {{ item.name }}
+                                <span class="item-name">{{ item.name }}</span>
                             </label>
+                        </div>
+                        <div class="btn-group btn-group-sm trip-item-actions me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary edit-icon" 
+                                    onclick="editTripItem({{ trip.pk }}, {{ item.pk }}, this)"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Edit for this trip only">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                    onclick="deleteTripItem({{ trip.pk }}, {{ item.pk }}, this)"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Remove from this trip">
+                                <i class="bi bi-trash"></i>
+                            </button>
                         </div>
                         {% if not item.source_category and categories %}
                         <div class="dropdown">
@@ -207,6 +241,12 @@
 {% block extra_js %}
 <script>
 const tripId = {{ trip.pk }};
+
+// Initialize Bootstrap tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+});
 
 async function handleAddTripItem(event) {
     event.preventDefault();

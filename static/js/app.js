@@ -144,10 +144,17 @@ async function addItemToCategory(categoryId, itemName, listElement) {
         // Add item to the list
         const itemHtml = `
             <li class="list-group-item d-flex justify-content-between align-items-center" data-item-id="${item.id}">
-                <span>${item.name}</span>
-                <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteItem(${categoryId}, ${item.id}, this)">
-                    <i class="bi bi-trash"></i>
-                </button>
+                <span class="item-name">${item.name}</span>
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-sm btn-outline-secondary edit-icon" 
+                            onclick="editCategoryItem(${categoryId}, ${item.id}, this)"
+                            title="Edit item">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteItem(${categoryId}, ${item.id}, this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
             </li>
         `;
         listElement.insertAdjacentHTML('beforeend', itemHtml);
@@ -204,6 +211,133 @@ async function deleteCategory(categoryId, element) {
         if (card) {
             card.remove();
         }
+    } catch (error) {
+        showAlert('danger', error.message);
+    }
+}
+
+// ============================================
+// Inline Editing Functions
+// ============================================
+
+/**
+ * Create an inline edit input that replaces a text element
+ * @param {HTMLElement} textElement - The element containing the text to edit
+ * @param {string} currentValue - The current text value
+ * @param {Function} onSave - Callback when save is triggered (receives new value)
+ * @returns {HTMLInputElement} The created input element
+ */
+function createInlineEdit(textElement, currentValue, onSave) {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'form-control form-control-sm inline-edit-input';
+    input.value = currentValue;
+    
+    // Store original display for restoration
+    const originalDisplay = textElement.style.display;
+    textElement.style.display = 'none';
+    textElement.parentNode.insertBefore(input, textElement.nextSibling);
+    input.focus();
+    input.select();
+    
+    let saved = false;
+    
+    const save = async () => {
+        if (saved) return;
+        saved = true;
+        
+        const newValue = input.value.trim();
+        if (newValue && newValue !== currentValue) {
+            try {
+                await onSave(newValue);
+                textElement.textContent = newValue;
+            } catch (error) {
+                // Restore on error
+                showAlert('danger', error.message);
+            }
+        }
+        cleanup();
+    };
+    
+    const cancel = () => {
+        if (saved) return;
+        saved = true;
+        cleanup();
+    };
+    
+    const cleanup = () => {
+        textElement.style.display = originalDisplay;
+        input.remove();
+    };
+    
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            save();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            cancel();
+        }
+    });
+    
+    input.addEventListener('blur', () => {
+        // Small delay to allow click events to register
+        setTimeout(() => {
+            if (!saved) save();
+        }, 100);
+    });
+    
+    return input;
+}
+
+// Edit category name
+function editCategory(categoryId, button) {
+    const accordion = button.closest('.accordion-item');
+    const nameElement = accordion.querySelector('.category-name');
+    const currentName = nameElement.textContent.trim();
+    
+    createInlineEdit(nameElement, currentName, async (newName) => {
+        await apiRequest(`/api/categories/${categoryId}/`, 'PATCH', { name: newName });
+    });
+}
+
+// Edit category item name
+function editCategoryItem(categoryId, itemId, button) {
+    const listItem = button.closest('.list-group-item');
+    const nameElement = listItem.querySelector('.item-name');
+    const currentName = nameElement.textContent.trim();
+    
+    createInlineEdit(nameElement, currentName, async (newName) => {
+        await apiRequest(`/api/categories/${categoryId}/items/${itemId}/`, 'PATCH', { name: newName });
+    });
+}
+
+// Edit trip item name
+function editTripItem(tripId, itemId, button) {
+    const listItem = button.closest('.list-group-item');
+    const label = listItem.querySelector('.form-check-label');
+    const nameElement = label.querySelector('.item-name');
+    const currentName = nameElement.textContent.trim();
+    
+    createInlineEdit(nameElement, currentName, async (newName) => {
+        await apiRequest(`/api/trips/${tripId}/items/${itemId}/`, 'PATCH', { name: newName });
+    });
+}
+
+// Delete trip item
+async function deleteTripItem(tripId, itemId, button) {
+    if (!confirmDelete('Remove this item from the trip?')) {
+        return;
+    }
+    
+    try {
+        await apiRequest(`/api/trips/${tripId}/items/${itemId}/`, 'DELETE');
+        
+        const listItem = button.closest('.list-group-item');
+        listItem.remove();
+        
+        // Update progress bar
+        updateTripProgress(tripId);
     } catch (error) {
         showAlert('danger', error.message);
     }

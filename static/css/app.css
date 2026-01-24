@@ -101,3 +101,51 @@
     font-size: 4rem;
     margin-bottom: 1rem;
 }
+
+/* Edit icon styling */
+.edit-icon {
+    opacity: 0.5;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.edit-icon:hover {
+    opacity: 1;
+}
+
+.list-group-item:hover .edit-icon,
+.accordion-header:hover .edit-icon {
+    opacity: 0.8;
+}
+
+/* Inline edit input */
+.inline-edit-input {
+    display: inline-block;
+    width: auto;
+    min-width: 150px;
+    max-width: 100%;
+}
+
+/* Trip item action buttons */
+.trip-item-actions {
+    opacity: 0.5;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.list-group-item:hover .trip-item-actions {
+    opacity: 1;
+}
+
+/* Fix for edit button in accordion header */
+.accordion-button .btn-link {
+    text-decoration: none;
+    line-height: 1;
+}
+
+.accordion-button .btn-link:hover {
+    color: #0d6efd !important;
+}
+
+/* Ensure item name doesn't wrap awkwardly */
+.item-name {
+    word-break: break-word;
+}
