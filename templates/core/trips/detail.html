@@ -12,20 +12,20 @@
 
 <div class="d-flex justify-content-between align-items-start mb-4">
     <div>
-        <h1 class="d-flex align-items-center">
+        <h1>
             {% if trip.is_complete %}
-            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            <i class="bi bi-check-circle-fill text-success"></i>
             {% endif %}
             <span class="trip-name">{{ trip.name }}</span>
-            <button type="button" class="btn btn-sm btn-link text-muted edit-icon ms-2 p-0"
-                    onclick="editTripName({{ trip.pk }}, this)"
-                    title="Edit trip name">
-                <i class="bi bi-pencil"></i>
-            </button>
         </h1>
         <p class="text-muted mb-0">Created {{ trip.created_at|date:"M d, Y" }}</p>
     </div>
     <div class="btn-group">
+        <button type="button" class="btn btn-outline-secondary"
+                onclick="editTripName({{ trip.pk }}, this)"
+                title="Edit trip name">
+            <i class="bi bi-pencil"></i>
+        </button>
         <form method="post" action="{% url 'core:trip_complete' trip.pk %}" class="d-inline">
             {% csrf_token %}
             <button type="submit" class="btn btn-{{ trip.is_complete|yesno:'warning,success' }}">
