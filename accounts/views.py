@@ -1,9 +1,8 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth import login, logout
+from django.shortcuts import redirect, render
 
-from .forms import CustomUserCreationForm, CustomAuthenticationForm
+from .forms import CustomAuthenticationForm, CustomUserCreationForm
 
 
 def login_view(request):
@@ -43,9 +42,7 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(
-                request, "Account created successfully! Welcome to Packing App."
-            )
+            messages.success(request, "Account created successfully! Welcome to Packing App.")
             return redirect("core:dashboard")
     else:
         form = CustomUserCreationForm()

@@ -1,0 +1,118 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  PYTHON: uv run python
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  # Development server
+  dev:
+    desc: Run the development server
+    cmds:
+      - "{{.PYTHON}} manage.py runserver"
+
+  # Database tasks
+  migrate:
+    desc: Run database migrations
+    cmds:
+      - "{{.PYTHON}} manage.py migrate"
+
+  makemigrations:
+    desc: Create new migrations
+    cmds:
+      - "{{.PYTHON}} manage.py makemigrations"
+
+  db:
+    desc: Run makemigrations then migrate
+    cmds:
+      - task: makemigrations
+      - task: migrate
+
+  # Testing
+  test:
+    desc: Run all tests
+    cmds:
+      - "{{.PYTHON}} manage.py test"
+
+  test:verbose:
+    desc: Run tests with verbose output
+    cmds:
+      - "{{.PYTHON}} manage.py test -v 2"
+
+  # Linting and formatting
+  lint:
+    desc: Run ruff linter
+    cmds:
+      - uv run ruff check .
+
+  lint:fix:
+    desc: Run ruff linter and fix auto-fixable issues
+    cmds:
+      - uv run ruff check . --fix
+
+  format:
+    desc: Format code with ruff
+    cmds:
+      - uv run ruff format .
+
+  format:check:
+    desc: Check code formatting without making changes
+    cmds:
+      - uv run ruff format . --check
+
+  # Type checking
+  typecheck:
+    desc: Run mypy type checker
+    cmds:
+      - uv run mypy .
+
+  # Combined checks
+  check:
+    desc: Run all checks (lint, format check, typecheck)
+    cmds:
+      - task: lint
+      - task: format:check
+      - task: typecheck
+
+  fix:
+    desc: Fix all auto-fixable issues (lint and format)
+    cmds:
+      - task: lint:fix
+      - task: format
+
+  # Django management
+  shell:
+    desc: Open Django shell
+    cmds:
+      - "{{.PYTHON}} manage.py shell"
+
+  createsuperuser:
+    desc: Create a superuser
+    cmds:
+      - "{{.PYTHON}} manage.py createsuperuser"
+
+  collectstatic:
+    desc: Collect static files
+    cmds:
+      - "{{.PYTHON}} manage.py collectstatic --noinput"
+
+  # Utility
+  clean:
+    desc: Clean up Python cache files
+    cmds:
+      - find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+      - find . -type f -name "*.pyc" -delete 2>/dev/null || true
+      - find . -type f -name "*.pyo" -delete 2>/dev/null || true
+
+  setup:
+    desc: Initial project setup (install deps, migrate, check)
+    cmds:
+      - uv sync
+      - task: migrate
+      - "{{.PYTHON}} manage.py check"

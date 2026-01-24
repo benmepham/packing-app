@@ -35,6 +35,28 @@ uv run python manage.py test
 uv run python manage.py check
 ```
 
+### Using Task
+
+This project uses [Task](https://taskfile.dev/) for running common commands:
+
+```bash
+task dev           # Run development server
+task migrate       # Run migrations
+task db            # makemigrations + migrate
+task test          # Run tests
+task check         # Run lint + format check + typecheck
+task fix           # Auto-fix lint issues and format code
+task lint          # Run ruff linter only
+task typecheck     # Run mypy only
+```
+
+### Linting and Type Checking
+
+- **Ruff**: Used for linting and formatting (configured in `pyproject.toml`)
+- **Mypy**: Used for type checking with django-stubs
+
+Always run `task check` before committing to ensure code quality.
+
 ## Architecture
 
 ### Apps

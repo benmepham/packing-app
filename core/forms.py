@@ -1,5 +1,6 @@
 from django import forms
-from .models import Category, CategoryItem, Trip
+
+from .models import Category, CategoryItem
 
 
 class CategoryForm(forms.ModelForm):
@@ -22,9 +23,7 @@ class CategoryItemForm(forms.ModelForm):
         model = CategoryItem
         fields = ["name"]
         widgets = {
-            "name": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "Item name"}
-            ),
+            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Item name"}),
         }
 
 

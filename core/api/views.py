@@ -1,17 +1,17 @@
-from rest_framework import generics, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from ..models import Category, CategoryItem, Trip, TripCategory, TripItem
+from ..models import Category, CategoryItem, Trip, TripItem
 from .serializers import (
-    CategorySerializer,
     CategoryDetailSerializer,
     CategoryItemSerializer,
-    TripSerializer,
+    CategorySerializer,
     TripDetailSerializer,
     TripItemSerializer,
+    TripSerializer,
 )
 
 
@@ -100,15 +100,11 @@ class TripItemListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        trip = get_object_or_404(
-            Trip, pk=self.kwargs["trip_pk"], user=self.request.user
-        )
+        trip = get_object_or_404(Trip, pk=self.kwargs["trip_pk"], user=self.request.user)
         return trip.items.all()
 
     def perform_create(self, serializer):
-        trip = get_object_or_404(
-            Trip, pk=self.kwargs["trip_pk"], user=self.request.user
-        )
+        trip = get_object_or_404(Trip, pk=self.kwargs["trip_pk"], user=self.request.user)
         serializer.save(trip=trip, is_custom=True)
 
 
@@ -119,9 +115,7 @@ class TripItemDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        trip = get_object_or_404(
-            Trip, pk=self.kwargs["trip_pk"], user=self.request.user
-        )
+        trip = get_object_or_404(Trip, pk=self.kwargs["trip_pk"], user=self.request.user)
         return trip.items.all()
 
 

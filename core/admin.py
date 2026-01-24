@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from .models import Category, CategoryItem, Trip, TripCategory, TripItem
 
 
@@ -14,10 +15,9 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ("name",)
     inlines = [CategoryItemInline]
 
-    def item_count(self, obj):
+    @admin.display(description="Items")
+    def item_count(self, obj: Category) -> int:
         return obj.items.count()
-
-    item_count.short_description = "Items"
 
 
 class TripItemInline(admin.TabularInline):
@@ -39,10 +39,9 @@ class TripAdmin(admin.ModelAdmin):
     search_fields = ("name",)
     inlines = [TripCategoryInline, TripItemInline]
 
-    def item_count(self, obj):
+    @admin.display(description="Items")
+    def item_count(self, obj: Trip) -> int:
         return obj.items.count()
-
-    item_count.short_description = "Items"
 
 
 @admin.register(CategoryItem)

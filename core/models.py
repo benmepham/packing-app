@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 
 
 class Category(models.Model):
@@ -20,9 +20,7 @@ class Category(models.Model):
 class CategoryItem(models.Model):
     """A template item within a category."""
 
-    category = models.ForeignKey(
-        Category, on_delete=models.CASCADE, related_name="items"
-    )
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="items")
     name = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -60,9 +58,7 @@ class Trip(models.Model):
 class TripCategory(models.Model):
     """Records which categories were selected for a trip."""
 
-    trip = models.ForeignKey(
-        Trip, on_delete=models.CASCADE, related_name="trip_categories"
-    )
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="trip_categories")
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
