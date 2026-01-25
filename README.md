@@ -23,7 +23,7 @@ A Django web application for managing packing lists for trips. Create reusable c
 
 ### Prerequisites
 
-- Python 3.13+ 
+- Python 3.13+
 - [uv](https://docs.astral.sh/uv/) package manager
 - [mise](https://mise.jdx.dev/) (optional, for running common tasks)
 - Node.js (LTS) and [pnpm](https://pnpm.io/) (for frontend linting)
@@ -31,33 +31,38 @@ A Django web application for managing packing lists for trips. Create reusable c
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone <repository-url>
    cd packing-app
    ```
 
 2. Install dependencies:
+
    ```bash
    uv sync
    pnpm install
    ```
 
 3. Run database migrations:
+
    ```bash
    uv run python manage.py migrate
    ```
 
 4. Create a superuser (optional, for admin access):
+
    ```bash
    uv run python manage.py createsuperuser
    ```
 
 5. Start the development server:
+
    ```bash
    uv run python manage.py runserver
    ```
 
-6. Open http://127.0.0.1:8000 in your browser
+6. Open <http://127.0.0.1:8000> in your browser
 
 ### Project Structure
 
