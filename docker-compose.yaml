@@ -1,0 +1,35 @@
+# Packing App - Docker Compose Example
+#
+# On first run, superuser credentials will be auto-generated and printed to logs.
+# View them with: docker compose logs web
+
+services:
+  web:
+    image: ghcr.io/benmepham/packing-app:latest
+    # Or build locally:
+    # build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # REQUIRED: Generate a secure secret key
+      # python -c "import secrets; print(secrets.token_urlsafe(50))"
+      - SECRET_KEY=change-me-generate-a-real-secret-key
+      - DEBUG=False
+      # Comma-separated list of allowed hostnames
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      # REQUIRED for HTTPS: Your domain(s) with https:// prefix
+      # - CSRF_TRUSTED_ORIGINS=https://myapp.example.com
+      # Enable secure cookies (default: True)
+      # Set to False only for local HTTP testing
+      - SECURE_COOKIES=True
+      # Optional: Set your own superuser credentials
+      # If not set, credentials are auto-generated on first run
+      # - DJANGO_SUPERUSER_USERNAME=admin
+      # - DJANGO_SUPERUSER_PASSWORD=your-secure-password
+      # - DJANGO_SUPERUSER_EMAIL=admin@example.com
+    volumes:
+      - sqlite_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:

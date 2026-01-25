@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Create Trip - Packing App{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'core:trip_list' %}">Trips</a></li>
+        <li class="breadcrumb-item active">Create New Trip</li>
+    </ol>
+</nav>
+
+<h1 class="mb-4">Create New Trip</h1>
+
+<div class="row">
+    <div class="col-lg-8">
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Trip Name -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Trip Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">Trip Name</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.name.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Selection -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Select Categories</h5>
+                </div>
+                <div class="card-body">
+                    {% if form.fields.categories.queryset.exists %}
+                    <p class="text-muted">Select the categories to include in this trip's packing list. Items from selected categories will be copied to your trip.</p>
+                    
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="select-all-categories">
+                        <label class="form-check-label fw-bold" for="select-all-categories">
+                            Select All Categories
+                        </label>
+                    </div>
+                    
+                    <div class="row row-cols-1 row-cols-md-2 g-3">
+                        {% for category in form.fields.categories.queryset %}
+                        <div class="col">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        <input type="checkbox" 
+                                               class="form-check-input" 
+                                               name="categories" 
+                                               value="{{ category.pk }}"
+                                               id="category-{{ category.pk }}"
+                                               {% if category in form.initial.categories %}checked{% endif %}>
+                                        <label class="form-check-label" for="category-{{ category.pk }}">
+                                            <strong>{{ category.name }}</strong>
+                                        </label>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            {{ category.items.count }} items:
+                                            {% for item in category.items.all|slice:":5" %}
+                                                {{ item.name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                            {% if category.items.count > 5 %}...{% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        You haven't created any categories yet. 
+                        <a href="{% url 'core:category_list' %}">Create categories</a> first to add items to your trips.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Template Info -->
+            {% if template_trip %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                <strong>Using "{{ template_trip.name }}" as template.</strong>
+                Categories have been pre-selected and any custom items from that trip will also be copied.
+            </div>
+            {% endif %}
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-check-lg"></i> Create Trip
+                </button>
+                <a href="{% url 'core:trip_list' %}" class="btn btn-outline-secondary btn-lg">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Template Selection Sidebar -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-copy"></i> Use a Template</h5>
+            </div>
+            <div class="card-body">
+                {% if existing_trips %}
+                <p class="text-muted small">Start from an existing trip to pre-select categories and copy custom items.</p>
+                <div class="list-group list-group-flush">
+                    {% for trip in existing_trips %}
+                    <a href="{% url 'core:trip_create' %}?template={{ trip.pk }}" 
+                       class="list-group-item list-group-item-action {% if template_trip.pk == trip.pk %}active{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>{{ trip.name }}</span>
+                            {% if trip.is_complete %}
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            {% endif %}
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No existing trips to use as templates. Your trips will appear here for future use.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

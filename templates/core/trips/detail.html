@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}{{ trip.name }} - Packing App{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'core:trip_list' %}">Trips</a></li>
+        <li class="breadcrumb-item active trip-name-breadcrumb">{{ trip.name }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1>
+            {% if trip.is_complete %}
+            <i class="bi bi-check-circle-fill text-success"></i>
+            {% endif %}
+            <span class="trip-name">{{ trip.name }}</span>
+        </h1>
+        <p class="text-muted mb-0">Created {{ trip.created_at|date:"M d, Y" }}</p>
+    </div>
+    <div class="btn-group">
+        <button type="button" class="btn btn-outline-secondary"
+                onclick="editTripName({{ trip.pk }}, this)"
+                title="Edit trip name">
+            <i class="bi bi-pencil"></i>
+        </button>
+        <form method="post" action="{% url 'core:trip_complete' trip.pk %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-{{ trip.is_complete|yesno:'warning,success' }}">
+                {% if trip.is_complete %}
+                <i class="bi bi-arrow-counterclockwise"></i> Reopen
+                {% else %}
+                <i class="bi bi-check-lg"></i> Mark Complete
+                {% endif %}
+            </button>
+        </form>
+        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            <i class="bi bi-trash"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Progress Bar -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span>Packing Progress</span>
+            <span data-trip-counter="{{ trip.pk }}">{{ trip.progress.packed }}/{{ trip.progress.total }}</span>
+        </div>
+        <div class="progress">
+            <div class="progress-bar {% if trip.progress.percentage == 100 %}bg-success{% endif %}" 
+                 role="progressbar"
+                 data-trip-progress="{{ trip.pk }}"
+                 style="width: {{ trip.progress.percentage }}%"
+                 aria-valuenow="{{ trip.progress.percentage }}"
+                 aria-valuemin="0" 
+                 aria-valuemax="100">
+                {{ trip.progress.percentage }}%
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Items by Category -->
+        {% for trip_category in trip_categories %}
+        <div class="card mb-3" data-trip-id="{{ trip.pk }}">
+            <div class="card-header">
+                <h5 class="mb-0">{{ trip_category.category_name }}</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for item in trip_category.items.all %}
+                <li class="list-group-item {% if item.is_packed %}item-packed{% endif %} {% if item.is_custom %}custom-item{% endif %}"
+                    data-item-id="{{ item.pk }}">
+                    <div class="form-check d-flex align-items-center">
+                        <input class="form-check-input" type="checkbox" 
+                               id="item-{{ item.pk }}"
+                               {% if item.is_packed %}checked{% endif %}
+                               onchange="toggleItemPacked({{ trip.pk }}, {{ item.pk }}, this)">
+                        <label class="form-check-label flex-grow-1" for="item-{{ item.pk }}">
+                            <span class="item-name">{{ item.name }}</span>
+                            {% if item.is_custom %}
+                            <span class="badge bg-warning text-dark">Custom</span>
+                            {% endif %}
+                        </label>
+                        <div class="btn-group btn-group-sm trip-item-actions">
+                            <button type="button" class="btn btn-sm btn-outline-secondary edit-icon" 
+                                    onclick="editTripItem({{ trip.pk }}, {{ item.pk }}, this)"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Edit for this trip only">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                    onclick="deleteTripItem({{ trip.pk }}, {{ item.pk }}, this)"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Remove from this trip">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">No items in this category</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% empty %}
+        {% if not custom_items %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            This trip has no items. Add items using the form on the right, or 
+            <a href="{% url 'core:category_list' %}">create categories</a> with items first.
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        <!-- Custom Items (not in any category) -->
+        {% if custom_items %}
+        <div class="card mb-3" data-trip-id="{{ trip.pk }}">
+            <div class="card-header">
+                <h5 class="mb-0">Custom Items</h5>
+            </div>
+            <ul class="list-group list-group-flush" id="custom-items-list">
+                {% for item in custom_items %}
+                <li class="list-group-item {% if item.is_packed %}item-packed{% endif %} custom-item"
+                    data-item-id="{{ item.pk }}">
+                    <div class="d-flex align-items-center">
+                        <div class="form-check flex-grow-1">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="item-{{ item.pk }}"
+                                   {% if item.is_packed %}checked{% endif %}
+                                   onchange="toggleItemPacked({{ trip.pk }}, {{ item.pk }}, this)">
+                            <label class="form-check-label" for="item-{{ item.pk }}">
+                                <span class="item-name">{{ item.name }}</span>
+                            </label>
+                        </div>
+                        <div class="btn-group btn-group-sm trip-item-actions me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary edit-icon" 
+                                    onclick="editTripItem({{ trip.pk }}, {{ item.pk }}, this)"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Edit for this trip only">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                    onclick="deleteTripItem({{ trip.pk }}, {{ item.pk }}, this)"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Remove from this trip">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                        {% if not item.source_category and categories %}
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                    type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-plus-lg"></i> Save to Category
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                {% for category in categories %}
+                                <li>
+                                    <a class="dropdown-item" href="#" 
+                                       onclick="saveToCategory({{ trip.pk }}, {{ item.pk }}, {{ category.pk }}, '{{ category.name }}'); return false;">
+                                        {{ category.name }}
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% elif item.source_category %}
+                        <small class="text-muted">
+                            <i class="bi bi-check"></i> Saved to {{ item.source_category.name }}
+                        </small>
+                        {% endif %}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar - Add Item -->
+    <div class="col-lg-4">
+        <div class="card sticky-top" style="top: 1rem;">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-plus-lg"></i> Add Item</h5>
+            </div>
+            <div class="card-body">
+                <form id="add-item-form" onsubmit="return handleAddTripItem(event)">
+                    <div class="mb-3">
+                        <label for="new-item-name" class="form-label">Item Name</label>
+                        <input type="text" class="form-control" id="new-item-name" 
+                               placeholder="e.g., Phone charger" required>
+                    </div>
+                    {% if categories %}
+                    <div class="mb-3">
+                        <label for="new-item-category" class="form-label">Also add to category (optional)</label>
+                        <select class="form-select" id="new-item-category">
+                            <option value="">Don't save to category</option>
+                            {% for category in categories %}
+                            <option value="{{ category.pk }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Save this item to a category for future trips.</div>
+                    </div>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-lg"></i> Add to Packing List
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Trip</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong>{{ trip.name }}</strong>?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" action="{% url 'core:trip_delete' trip.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete Trip</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const tripId = {{ trip.pk }};
+
+// Initialize Bootstrap tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+});
+
+async function handleAddTripItem(event) {
+    event.preventDefault();
+    
+    const nameInput = document.getElementById('new-item-name');
+    const categorySelect = document.getElementById('new-item-category');
+    const itemName = nameInput.value.trim();
+    
+    if (!itemName) return false;
+    
+    try {
+        const categoryId = categorySelect ? categorySelect.value : null;
+        
+        // Add item to trip
+        const item = await addItemToTrip(tripId, itemName, categoryId);
+        
+        // If category selected, also add to category
+        if (categoryId) {
+            const categoryName = categorySelect.options[categorySelect.selectedIndex].text;
+            await apiRequest(`/api/categories/${categoryId}/items/`, 'POST', { name: itemName });
+        }
+        
+        // Refresh the page to show the new item
+        // (In a more sophisticated app, we'd add it dynamically)
+        location.reload();
+    } catch (error) {
+        showAlert('danger', error.message);
+    }
+    
+    return false;
+}
+
+async function saveToCategory(tripId, itemId, categoryId, categoryName) {
+    try {
+        await apiRequest(`/api/trips/${tripId}/items/${itemId}/add-to-category/`, 'POST', {
+            category_id: categoryId
+        });
+        showAlert('success', `Item saved to "${categoryName}" for future trips.`);
+        
+        // Refresh to update the UI
+        location.reload();
+    } catch (error) {
+        showAlert('danger', error.message);
+    }
+}
+</script>
+{% endblock %}

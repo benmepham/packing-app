@@ -1,0 +1,14 @@
+{
+  "name": "packing-app",
+  "private": true,
+  "description": "Frontend tooling for packing-app",
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0"
+  },
+  "scripts": {
+    "lint": "biome check static/",
+    "lint:fix": "biome check --write static/",
+    "format": "biome format --write static/",
+    "format:check": "biome format static/"
+  }
+}

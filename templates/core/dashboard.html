@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Packing App{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Dashboard</h1>
+    <a href="{% url 'core:trip_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> New Trip
+    </a>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card text-bg-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-1">Active Trips</h6>
+                        <h2 class="card-title mb-0">{{ total_active }}</h2>
+                    </div>
+                    <i class="bi bi-airplane fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-1">Total Trips</h6>
+                        <h2 class="card-title mb-0">{{ total_trips }}</h2>
+                    </div>
+                    <i class="bi bi-check-circle fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-1">Categories</h6>
+                        <h2 class="card-title mb-0">{{ total_categories }}</h2>
+                    </div>
+                    <i class="bi bi-tags fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Active Trips -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Active Trips</h5>
+                <a href="{% url 'core:trip_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if active_trips %}
+                <div class="list-group list-group-flush">
+                    {% for trip in active_trips %}
+                    <a href="{% url 'core:trip_detail' trip.pk %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong>{{ trip.name }}</strong>
+                            <small class="text-muted">{{ trip.progress.packed }}/{{ trip.progress.total }}</small>
+                        </div>
+                        <div class="progress progress-sm">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ trip.progress.percentage }}%"
+                                 aria-valuenow="{{ trip.progress.percentage }}" 
+                                 aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-airplane text-muted"></i>
+                    <p>No active trips</p>
+                    <a href="{% url 'core:trip_create' %}" class="btn btn-primary">Create Your First Trip</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'core:trip_create' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-lg"></i> Create New Trip
+                    </a>
+                    <a href="{% url 'core:category_list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-tags"></i> Manage Categories
+                    </a>
+                </div>
+
+                {% if completed_trips %}
+                <hr>
+                <h6 class="text-muted mb-3">Recently Completed</h6>
+                <ul class="list-unstyled">
+                    {% for trip in completed_trips %}
+                    <li class="mb-2">
+                        <a href="{% url 'core:trip_detail' trip.pk %}" class="text-decoration-none">
+                            <i class="bi bi-check-circle-fill text-success"></i> {{ trip.name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

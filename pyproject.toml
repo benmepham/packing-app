@@ -1,0 +1,82 @@
+[project]
+name = "packing-app"
+version = "0.1.0"
+description = "A Django web application for managing packing lists for trips"
+requires-python = ">=3.13"
+dependencies = [
+    "django>=6.0.1",
+    "djangorestframework>=3.16.1",
+    "gunicorn>=23.0.0",
+    "whitenoise>=6.8.0",
+]
+
+[dependency-groups]
+dev = [
+    "django-stubs>=5.2.9",
+    "djangorestframework-stubs>=3.16.7",
+    "djlint>=1.36.4",
+    "mypy>=1.19.1",
+    "ruff>=0.14.14",
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "migrations",
+    "staticfiles",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "DJ",     # flake8-django
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["core", "accounts", "packing_project"]
+
+[tool.mypy]
+python_version = "3.13"
+plugins = [
+    "mypy_django_plugin.main",
+    "mypy_drf_plugin.main",
+]
+strict = false
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+exclude = [
+    "migrations/",
+    ".venv/",
+]
+
+[tool.django-stubs]
+django_settings_module = "packing_project.settings"
+
+[tool.djlint]
+profile = "django"
+indent = 4
+max_line_length = 100
+# H006: img tag should have height and width attributes
+# H017: Void tags should be self closing (not standard in HTML5)
+# H021: Inline styles should be avoided (too strict for small apps)
+# H030: Consider adding a meta description (not required)
+# H031: Consider adding meta keywords (outdated SEO practice)
+# H035: Meta tags should be self closing (not standard in HTML5)
+# T003: Endblock should have name (optional Django feature)
+ignore = "H006,H017,H021,H030,H031,H035,T003"
+format_css = true
+format_js = true

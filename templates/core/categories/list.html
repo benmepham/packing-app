@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Categories - Packing App{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Categories</h1>
+</div>
+
+<!-- Create Category Form -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="post" class="row g-3 align-items-end">
+            {% csrf_token %}
+            <div class="col-md-8 col-lg-9">
+                <label for="{{ form.name.id_for_label }}" class="form-label">New Category</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.name.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-plus-lg"></i> Add Category
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Categories List -->
+{% if categories %}
+<div class="categories-list">
+    {% for category in categories %}
+    <div class="card mb-3" data-category-id="{{ category.pk }}">
+        <div class="card-header d-flex align-items-center">
+            <h5 class="mb-0 category-name">{{ category.name }}</h5>
+            <button type="button" class="btn btn-sm btn-link text-muted edit-icon ms-2 p-0"
+                    onclick="editCategory({{ category.pk }}, this)"
+                    title="Edit category name">
+                <i class="bi bi-pencil"></i>
+            </button>
+            <span class="badge bg-secondary ms-auto">{{ category.items.count }} items</span>
+        </div>
+        
+        <!-- Items List -->
+        <ul class="list-group list-group-flush" id="items-{{ category.pk }}">
+            {% for item in category.items.all %}
+            <li class="list-group-item d-flex justify-content-between align-items-center" 
+                data-item-id="{{ item.pk }}">
+                <span class="item-name">{{ item.name }}</span>
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-sm btn-outline-secondary edit-icon" 
+                            onclick="editCategoryItem({{ category.pk }}, {{ item.pk }}, this)"
+                            title="Edit item">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                            onclick="deleteItem({{ category.pk }}, {{ item.pk }}, this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted" id="empty-{{ category.pk }}">
+                No items yet. Add some below!
+            </li>
+            {% endfor %}
+        </ul>
+
+        <div class="card-footer">
+            <!-- Add Item Form -->
+            <form class="row g-2 mb-2" onsubmit="return handleAddItem(event, {{ category.pk }})">
+                <div class="col">
+                    <input type="text" class="form-control form-control-sm" 
+                           id="new-item-{{ category.pk }}" 
+                           placeholder="New item name" required>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-plus-lg"></i> Add
+                    </button>
+                </div>
+            </form>
+
+            <!-- Delete Category -->
+            <button type="button" class="btn btn-sm btn-outline-danger" 
+                    onclick="deleteCategory({{ category.pk }}, this)">
+                <i class="bi bi-trash"></i> Delete Category
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body empty-state">
+        <i class="bi bi-tags text-muted"></i>
+        <h5>No categories yet</h5>
+        <p class="text-muted">Create categories to organize your packing items.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function handleAddItem(event, categoryId) {
+    event.preventDefault();
+    const input = document.getElementById(`new-item-${categoryId}`);
+    const itemName = input.value.trim();
+    if (!itemName) return false;
+
+    const listElement = document.getElementById(`items-${categoryId}`);
+    
+    try {
+        // Remove "no items" message if present
+        const emptyMsg = document.getElementById(`empty-${categoryId}`);
+        if (emptyMsg) emptyMsg.remove();
+
+        const item = await addItemToCategory(categoryId, itemName, listElement);
+        input.value = '';
+        input.focus();
+        
+        // Update item count badge
+        const card = document.querySelector(`[data-category-id="${categoryId}"]`);
+        const badge = card.querySelector('.badge');
+        const count = listElement.querySelectorAll('[data-item-id]').length;
+        badge.textContent = `${count} items`;
+    } catch (error) {
+        console.error('Failed to add item:', error);
+    }
+
+    return false;
+}
+</script>
+{% endblock %}
