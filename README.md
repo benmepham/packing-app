@@ -1,5 +1,7 @@
 # Packing App
 
+⚠️ 🤖 - Heavily AI assisted project
+
 A Django web application for managing packing lists for trips. Create reusable category templates with items, then generate trip-specific checklists to track what you've packed.
 
 ## Features
