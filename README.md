@@ -61,30 +61,12 @@ A Django web application for managing packing lists for trips. Create reusable c
 
 ### Project Structure
 
-```
-packing-app/
-├── accounts/           # User authentication app
-│   ├── forms.py        # Login/registration forms
-│   ├── views.py        # Auth views
-│   └── urls.py
-├── core/               # Main application
-│   ├── api/            # REST API
-│   │   ├── serializers.py
-│   │   ├── views.py
-│   │   └── urls.py
-│   ├── models.py       # Category, Trip, Item models
-│   ├── views.py        # Template-based views
-│   ├── forms.py
-│   └── urls.py
-├── templates/          # HTML templates
-│   ├── base.html       # Base layout with Bootstrap
-│   ├── accounts/       # Auth templates
-│   └── core/           # App templates
-├── static/
-│   ├── css/app.css     # Custom styles
-│   └── js/app.js       # AJAX helpers
-└── packing_project/    # Django project settings
-```
+- **accounts/**: User authentication (login, logout, registration)
+- **core/**: Main application with models, views, and forms
+- **core/api/**: REST API using Django REST Framework
+- **templates/**: HTML templates extending `base.html`
+- **static/**: CSS and JavaScript assets
+- **packing_project/**: Django project settings
 
 ### Database Schema
 
@@ -118,47 +100,17 @@ mise run test
 
 ### Code Quality
 
-This project uses:
-- [ruff](https://docs.astral.sh/ruff/) for Python linting/formatting
-- [mypy](https://mypy.readthedocs.io/) for Python type checking
-- [Biome](https://biomejs.dev/) for JavaScript/CSS linting and formatting
-- [djLint](https://djlint.com/) for Django HTML template linting
+This project uses ruff, mypy, Biome, and djLint for linting and formatting. Run `mise tasks` to see all available commands, or see `mise.toml` for details.
+
+Essential commands:
 
 ```bash
-# Run all checks (Python + frontend)
-mise run check
-
-# Python linting
-mise run lint        # Run ruff linter
-mise run format      # Format code with ruff  
-mise run typecheck   # Run mypy
-
-# Frontend linting
-mise run lint:js     # Run Biome on JS/CSS
-mise run lint:html   # Run djLint on HTML templates
-mise run lint:frontend  # Run all frontend linters
-
-# Auto-fix issues
-mise run fix         # Fix all lint issues and format code
-mise run lint:js:fix    # Fix JS/CSS issues
-mise run lint:html:fix  # Fix HTML template issues
+mise run dev     # Run development server
+mise run check   # Run all checks (lint, format, typecheck) - run before committing
+mise run fix     # Auto-fix lint and format issues
+mise run test    # Run all tests
+mise run db      # Run makemigrations + migrate
 ```
-
-### Available Tasks
-
-Run `mise tasks` to see all available commands:
-
-| Task | Description |
-|------|-------------|
-| `mise run dev` | Run the development server |
-| `mise run migrate` | Run database migrations |
-| `mise run db` | Run makemigrations then migrate |
-| `mise run test` | Run all tests |
-| `mise run check` | Run all checks (lint, format, typecheck, frontend) |
-| `mise run fix` | Auto-fix lint and format issues |
-| `mise run lint:frontend` | Run frontend linters (JS, CSS, HTML) |
-| `mise run shell` | Open Django shell |
-| `mise run setup` | Initial project setup |
 
 ## Usage
 
@@ -229,52 +181,9 @@ Run `mise tasks` to see all available commands:
 | `DJANGO_SUPERUSER_PASSWORD` | No | Auto-generated | Superuser password (printed to logs if auto-generated) |
 | `DJANGO_SUPERUSER_EMAIL` | No | `admin@example.com` | Superuser email |
 
-### Nginx Reverse Proxy
-
-The Docker container is designed to run behind nginx with SSL termination. Example nginx configuration:
-
-```nginx
-server {
-    listen 443 ssl http2;
-    server_name myapp.example.com;
-
-    ssl_certificate /path/to/fullchain.pem;
-    ssl_certificate_key /path/to/privkey.pem;
-
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-
-server {
-    listen 80;
-    server_name myapp.example.com;
-    return 301 https://$server_name$request_uri;
-}
-```
-
 ### CI/CD Pipeline
 
-The project includes a GitHub Actions workflow (`.github/workflows/ci.yml`) that:
-
-1. **On every push/PR to main:**
-   - Runs Python linting (ruff) and type checking (mypy)
-   - Runs frontend linting (Biome for JS/CSS, djLint for HTML)
-   - Runs Django tests
-
-2. **On push to main (after tests pass):**
-   - Builds a Docker image
-   - Pushes to `ghcr.io/<owner>/packing-app:latest`
-
-To use it:
-
-1. Ensure your repository has GitHub Packages enabled
-2. The workflow uses `GITHUB_TOKEN` automatically (no secrets needed)
-3. After the first successful build, the image will be available at `ghcr.io/<owner>/packing-app:latest`
+The GitHub Actions workflow (`.github/workflows/ci.yml`) runs linting and tests on every push/PR to main. On successful pushes to main, it builds and pushes a Docker image to `ghcr.io/<owner>/packing-app:latest`.
 
 ### Building Locally
 
