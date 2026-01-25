@@ -8,16 +8,10 @@
     "rules": {
       "recommended": true,
       "style": {
-        "noVar": "warn",
-        "useConst": "warn",
         "useTemplate": "warn"
       },
       "complexity": {
         "noForEach": "off"
-      },
-      "suspicious": {
-        "noExplicitAny": "off",
-        "noAssignInExpressions": "warn"
       }
     }
   },
@@ -44,7 +38,13 @@
     }
   },
   "files": {
-    "include": ["static/**/*.js", "static/**/*.css"],
-    "ignore": ["staticfiles/**", "node_modules/**"]
+    "include": [
+      "static/**/*.js",
+      "static/**/*.css"
+    ],
+    "ignore": [
+      "staticfiles/**",
+      "node_modules/**"
+    ]
   }
 }
