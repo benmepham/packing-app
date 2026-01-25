@@ -14,6 +14,7 @@ dependencies = [
 dev = [
     "django-stubs>=5.2.9",
     "djangorestframework-stubs>=3.16.7",
+    "djlint>=1.36.4",
     "mypy>=1.19.1",
     "ruff>=0.14.14",
 ]
@@ -64,3 +65,18 @@ exclude = [
 
 [tool.django-stubs]
 django_settings_module = "packing_project.settings"
+
+[tool.djlint]
+profile = "django"
+indent = 4
+max_line_length = 100
+# H006: img tag should have height and width attributes
+# H017: Void tags should be self closing (not standard in HTML5)
+# H021: Inline styles should be avoided (too strict for small apps)
+# H030: Consider adding a meta description (not required)
+# H031: Consider adding meta keywords (outdated SEO practice)
+# H035: Meta tags should be self closing (not standard in HTML5)
+# T003: Endblock should have name (optional Django feature)
+ignore = "H006,H017,H021,H030,H031,H035,T003"
+format_css = true
+format_js = true

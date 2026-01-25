@@ -11,7 +11,7 @@ A Django-based packing list web application. Users create category templates wit
 - **Backend**: Django 6.x + Django REST Framework
 - **Frontend**: Bootstrap 5 + vanilla JavaScript (no React/Vue/etc.)
 - **Database**: SQLite
-- **Package Manager**: uv (not pip)
+- **Package Managers**: uv (Python), pnpm (JavaScript)
 - **Python**: 3.13+
 
 ## Build/Lint/Test Commands
@@ -24,12 +24,17 @@ mise run migrate       # Run migrations
 mise run db            # makemigrations + migrate
 mise run test          # Run all tests
 mise run test:verbose  # Run tests with verbose output
-mise run check         # Run lint + format check + typecheck
+mise run check         # Run lint + format check + typecheck + frontend
 mise run fix           # Auto-fix lint issues and format code
-mise run lint          # Run ruff linter only
-mise run lint:fix      # Fix auto-fixable lint issues
-mise run format        # Format code with ruff
-mise run format:check  # Check formatting without changes
+mise run lint          # Run ruff linter only (Python)
+mise run lint:fix      # Fix auto-fixable Python lint issues
+mise run lint:js       # Run Biome linter (JS/CSS)
+mise run lint:js:fix   # Fix JS/CSS issues
+mise run lint:html     # Run djLint (HTML templates)
+mise run lint:html:fix # Fix HTML template issues
+mise run lint:frontend # Run all frontend linters
+mise run format        # Format Python code with ruff
+mise run format:check  # Check Python formatting without changes
 mise run typecheck     # Run mypy only
 mise run shell         # Open Django shell
 mise run setup         # Initial setup (install, migrate, check)
@@ -56,11 +61,25 @@ Always run `mise run check` before committing.
 
 ## Code Style Guidelines
 
-### Formatting & Linting (ruff)
+### Python Formatting & Linting (ruff)
 
 - Line length: 100 characters
 - Target Python: 3.13
 - Migrations and staticfiles are excluded from linting
+
+### JavaScript/CSS Linting (Biome)
+
+- Config in `biome.json`
+- Single quotes for JS strings
+- 4-space indentation
+- Semicolons required
+- Line length: 100 characters
+
+### HTML Template Linting (djLint)
+
+- Config in `pyproject.toml` under `[tool.djlint]`
+- Django profile
+- 4-space indentation
 
 ### Import Order (isort via ruff)
 

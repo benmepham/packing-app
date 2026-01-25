@@ -17,7 +17,7 @@ A Django web application for managing packing lists for trips. Create reusable c
 - **Backend**: Django 6.x with Django REST Framework
 - **Frontend**: Bootstrap 5, vanilla JavaScript (no SPA framework)
 - **Database**: SQLite
-- **Package Manager**: uv
+- **Package Manager**: uv (Python), pnpm (JavaScript)
 
 ## Development Setup
 
@@ -26,6 +26,7 @@ A Django web application for managing packing lists for trips. Create reusable c
 - Python 3.13+ 
 - [uv](https://docs.astral.sh/uv/) package manager
 - [mise](https://mise.jdx.dev/) (optional, for running common tasks)
+- Node.js (LTS) and [pnpm](https://pnpm.io/) (for frontend linting)
 
 ### Installation
 
@@ -38,6 +39,7 @@ A Django web application for managing packing lists for trips. Create reusable c
 2. Install dependencies:
    ```bash
    uv sync
+   pnpm install
    ```
 
 3. Run database migrations:
@@ -116,19 +118,30 @@ mise run test
 
 ### Code Quality
 
-This project uses [ruff](https://docs.astral.sh/ruff/) for linting/formatting and [mypy](https://mypy.readthedocs.io/) for type checking.
+This project uses:
+- [ruff](https://docs.astral.sh/ruff/) for Python linting/formatting
+- [mypy](https://mypy.readthedocs.io/) for Python type checking
+- [Biome](https://biomejs.dev/) for JavaScript/CSS linting and formatting
+- [djLint](https://djlint.com/) for Django HTML template linting
 
 ```bash
-# Run all checks
+# Run all checks (Python + frontend)
 mise run check
 
-# Or individually
+# Python linting
 mise run lint        # Run ruff linter
 mise run format      # Format code with ruff  
 mise run typecheck   # Run mypy
 
+# Frontend linting
+mise run lint:js     # Run Biome on JS/CSS
+mise run lint:html   # Run djLint on HTML templates
+mise run lint:frontend  # Run all frontend linters
+
 # Auto-fix issues
-mise run fix         # Fix lint issues and format code
+mise run fix         # Fix all lint issues and format code
+mise run lint:js:fix    # Fix JS/CSS issues
+mise run lint:html:fix  # Fix HTML template issues
 ```
 
 ### Available Tasks
@@ -141,8 +154,9 @@ Run `mise tasks` to see all available commands:
 | `mise run migrate` | Run database migrations |
 | `mise run db` | Run makemigrations then migrate |
 | `mise run test` | Run all tests |
-| `mise run check` | Run all checks (lint, format, typecheck) |
+| `mise run check` | Run all checks (lint, format, typecheck, frontend) |
 | `mise run fix` | Auto-fix lint and format issues |
+| `mise run lint:frontend` | Run frontend linters (JS, CSS, HTML) |
 | `mise run shell` | Open Django shell |
 | `mise run setup` | Initial project setup |
 
@@ -248,7 +262,8 @@ server {
 The project includes a GitHub Actions workflow (`.github/workflows/ci.yml`) that:
 
 1. **On every push/PR to main:**
-   - Runs linting (ruff) and type checking (mypy)
+   - Runs Python linting (ruff) and type checking (mypy)
+   - Runs frontend linting (Biome for JS/CSS, djLint for HTML)
    - Runs Django tests
 
 2. **On push to main (after tests pass):**
