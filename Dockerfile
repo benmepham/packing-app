@@ -22,7 +22,7 @@ FROM python:3.13-alpine
 WORKDIR /app
 
 # Create non-root user for security
-RUN useradd --create-home --shell /bin/bash appuser
+RUN adduser --disabled-password --shell /bin/sh appuser
 
 # Copy virtual environment from builder
 COPY --from=builder /app/.venv /app/.venv
