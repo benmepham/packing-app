@@ -36,13 +36,6 @@ jobs:
       - name: Run mypy type checker
         run: uv run mypy .
 
-  lint-frontend:
-    name: Lint Frontend (JS, CSS, HTML)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -59,15 +52,6 @@ jobs:
 
       - name: Run Biome linter (JS/CSS)
         run: pnpm biome check static/
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-
-      - name: Set up Python
-        run: uv python install 3.13
-
-      - name: Install Python dependencies
-        run: uv sync --frozen
 
       - name: Run djLint (HTML templates)
         run: uv run djlint templates/ --lint
@@ -96,7 +80,7 @@ jobs:
 
   build:
     name: Build & Push Docker Image
-    needs: [lint, lint-frontend, test]
+    needs: [lint, test]
     runs-on: ubuntu-latest
     # Only build and push on main branch pushes, not PRs
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
