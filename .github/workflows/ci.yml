@@ -18,43 +18,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
+      - name: Setup mise
+        uses: jdx/mise-action@v2
 
-      - name: Set up Python
-        run: uv python install 3.13
+      - name: Install dependencies
+        run: |
+          uv sync --frozen
+          pnpm install --frozen-lockfile
 
-      - name: Install Python dependencies
-        run: uv sync --frozen
-
-      - name: Run ruff linter
-        run: uv run ruff check .
-
-      - name: Run ruff formatter check
-        run: uv run ruff format --check .
-
-      - name: Run mypy type checker
-        run: uv run mypy .
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: latest
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "lts/*"
-          cache: "pnpm"
-
-      - name: Install frontend dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run Biome linter (JS/CSS)
-        run: pnpm biome check static/
-
-      - name: Run djLint (HTML templates)
-        run: uv run djlint templates/ --lint
+      - name: Run all checks
+        run: mise run check
 
   test:
     name: Test
@@ -63,11 +36,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-
-      - name: Set up Python
-        run: uv python install 3.13
+      - name: Setup mise
+        uses: jdx/mise-action@v2
 
       - name: Install dependencies
         run: uv sync --frozen
@@ -76,7 +46,7 @@ jobs:
         run: uv run python manage.py check
 
       - name: Run tests
-        run: uv run python manage.py test
+        run: mise run test
 
   build:
     name: Build & Push Docker Image
