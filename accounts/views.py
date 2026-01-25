@@ -1,14 +1,23 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 
 from .forms import CustomAuthenticationForm, CustomUserCreationForm
 
 
-def login_view(request):
+def login_view(request: HttpRequest) -> HttpResponse:
     """Handle user login."""
     if request.user.is_authenticated:
         return redirect("core:dashboard")
+
+    # If password login is disabled and OIDC is enabled, redirect to OIDC
+    password_login_enabled = getattr(settings, "PASSWORD_LOGIN_ENABLED", True)
+    oidc_enabled = getattr(settings, "OIDC_ENABLED", False)
+
+    if not password_login_enabled and oidc_enabled:
+        return redirect("oidc_authentication_init")
 
     if request.method == "POST":
         form = CustomAuthenticationForm(request, data=request.POST)
@@ -24,7 +33,7 @@ def login_view(request):
     return render(request, "accounts/login.html", {"form": form})
 
 
-def logout_view(request):
+def logout_view(request: HttpRequest) -> HttpResponse:
     """Handle user logout."""
     if request.method == "POST":
         logout(request)
@@ -32,7 +41,7 @@ def logout_view(request):
     return redirect("accounts:login")
 
 
-def register_view(request):
+def register_view(request: HttpRequest) -> HttpResponse:
     """Handle user registration."""
     if request.user.is_authenticated:
         return redirect("core:dashboard")
