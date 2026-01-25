@@ -155,3 +155,124 @@ Run `mise tasks` to see all available commands:
 5. **Pack your bag** and tick off items as you go
 6. **Add custom items** if you need something not in your categories
 7. **Reuse trips as templates** for future similar trips
+
+## Deployment
+
+### Docker Quick Start
+
+1. Create a `docker-compose.yaml` file (or copy the example from the repo):
+
+   ```yaml
+   services:
+     web:
+       image: ghcr.io/OWNER/packing-app:latest
+       ports:
+         - "8000:8000"
+       environment:
+         - SECRET_KEY=your-secret-key-here
+         - DEBUG=False
+         - ALLOWED_HOSTS=localhost,myapp.example.com
+         - CSRF_TRUSTED_ORIGINS=https://myapp.example.com
+       volumes:
+         - sqlite_data:/app/data
+       restart: unless-stopped
+
+   volumes:
+     sqlite_data:
+   ```
+
+2. Generate a secure secret key:
+
+   ```bash
+   python -c "import secrets; print(secrets.token_urlsafe(50))"
+   ```
+
+3. Start the application:
+
+   ```bash
+   docker compose up -d
+   ```
+
+4. View auto-generated superuser credentials:
+
+   ```bash
+   docker compose logs web
+   ```
+
+   On first run, if you don't provide `DJANGO_SUPERUSER_*` environment variables,
+   credentials will be auto-generated and printed to the logs.
+
+### Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `SECRET_KEY` | **Yes** (prod) | Insecure dev key | Django secret key. Generate with `python -c "import secrets; print(secrets.token_urlsafe(50))"` |
+| `DEBUG` | No | `False` | Enable debug mode. Never use `True` in production |
+| `ALLOWED_HOSTS` | No | `localhost` | Comma-separated list of allowed hostnames |
+| `CSRF_TRUSTED_ORIGINS` | **Yes** (HTTPS) | Empty | Comma-separated origins with scheme, e.g., `https://myapp.example.com` |
+| `SECURE_COOKIES` | No | `True` | Set cookies as secure (HTTPS only). Set to `False` for local HTTP testing |
+| `DJANGO_SUPERUSER_USERNAME` | No | `admin` | Superuser username (auto-generated if not set) |
+| `DJANGO_SUPERUSER_PASSWORD` | No | Auto-generated | Superuser password (printed to logs if auto-generated) |
+| `DJANGO_SUPERUSER_EMAIL` | No | `admin@example.com` | Superuser email |
+
+### Nginx Reverse Proxy
+
+The Docker container is designed to run behind nginx with SSL termination. Example nginx configuration:
+
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name myapp.example.com;
+
+    ssl_certificate /path/to/fullchain.pem;
+    ssl_certificate_key /path/to/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+server {
+    listen 80;
+    server_name myapp.example.com;
+    return 301 https://$server_name$request_uri;
+}
+```
+
+### CI/CD Pipeline
+
+The project includes a GitHub Actions workflow (`.github/workflows/ci.yml`) that:
+
+1. **On every push/PR to main:**
+   - Runs linting (ruff) and type checking (mypy)
+   - Runs Django tests
+
+2. **On push to main (after tests pass):**
+   - Builds a Docker image
+   - Pushes to `ghcr.io/<owner>/packing-app:latest`
+
+To use it:
+
+1. Ensure your repository has GitHub Packages enabled
+2. The workflow uses `GITHUB_TOKEN` automatically (no secrets needed)
+3. After the first successful build, the image will be available at `ghcr.io/<owner>/packing-app:latest`
+
+### Building Locally
+
+```bash
+# Build the Docker image
+docker build -t packing-app .
+
+# Run locally
+docker run -p 8000:8000 \
+  -e SECRET_KEY=dev-secret-key \
+  -e DEBUG=False \
+  -e ALLOWED_HOSTS=localhost \
+  -e SECURE_COOKIES=False \
+  -v packing_data:/app/data \
+  packing-app
+```
