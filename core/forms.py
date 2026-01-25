@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Category, CategoryItem
+from .models import Category
 
 
 class CategoryForm(forms.ModelForm):
@@ -13,17 +13,6 @@ class CategoryForm(forms.ModelForm):
             "name": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "Category name"}
             ),
-        }
-
-
-class CategoryItemForm(forms.ModelForm):
-    """Form for creating/editing category items."""
-
-    class Meta:
-        model = CategoryItem
-        fields = ["name"]
-        widgets = {
-            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Item name"}),
         }
 
 

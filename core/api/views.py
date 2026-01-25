@@ -8,24 +8,9 @@ from ..models import Category, CategoryItem, Trip, TripItem
 from .serializers import (
     CategoryDetailSerializer,
     CategoryItemSerializer,
-    CategorySerializer,
     TripDetailSerializer,
     TripItemSerializer,
-    TripSerializer,
 )
-
-
-class CategoryListCreateView(generics.ListCreateAPIView):
-    """List all categories or create a new one."""
-
-    serializer_class = CategorySerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return Category.objects.filter(user=self.request.user)
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
 
 
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -68,19 +53,6 @@ class CategoryItemDetailView(generics.RetrieveUpdateDestroyAPIView):
             Category, pk=self.kwargs["category_pk"], user=self.request.user
         )
         return category.items.all()
-
-
-class TripListCreateView(generics.ListCreateAPIView):
-    """List all trips or create a new one."""
-
-    serializer_class = TripSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return Trip.objects.filter(user=self.request.user)
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
 
 
 class TripDetailView(generics.RetrieveUpdateDestroyAPIView):

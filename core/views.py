@@ -45,14 +45,6 @@ def category_list(request):
 
 
 @login_required
-def category_detail(request, pk):
-    """View and edit a single category."""
-    category = get_object_or_404(Category, pk=pk, user=request.user)
-    context = {"category": category}
-    return render(request, "core/categories/detail.html", context)
-
-
-@login_required
 def trip_list(request):
     """List all trips."""
     trips = Trip.objects.filter(user=request.user)

@@ -12,20 +12,6 @@ class CategoryItemSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    """Serializer for category list/create."""
-
-    item_count = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Category
-        fields = ["id", "name", "item_count", "created_at"]
-        read_only_fields = ["id", "created_at"]
-
-    def get_item_count(self, obj):
-        return obj.items.count()
-
-
 class CategoryDetailSerializer(serializers.ModelSerializer):
     """Serializer for category detail with nested items."""
 
@@ -67,17 +53,6 @@ class TripCategorySerializer(serializers.ModelSerializer):
         model = TripCategory
         fields = ["id", "category_name", "category", "items"]
         read_only_fields = ["id"]
-
-
-class TripSerializer(serializers.ModelSerializer):
-    """Serializer for trip list/create."""
-
-    progress = serializers.ReadOnlyField()
-
-    class Meta:
-        model = Trip
-        fields = ["id", "name", "is_complete", "progress", "created_at"]
-        read_only_fields = ["id", "created_at"]
 
 
 class TripDetailSerializer(serializers.ModelSerializer):

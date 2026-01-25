@@ -6,7 +6,6 @@ app_name = "api"
 
 urlpatterns = [
     # Categories
-    path("categories/", views.CategoryListCreateView.as_view(), name="category_list"),
     path(
         "categories/<int:pk>/",
         views.CategoryDetailView.as_view(),
@@ -23,7 +22,6 @@ urlpatterns = [
         name="category_item_detail",
     ),
     # Trips
-    path("trips/", views.TripListCreateView.as_view(), name="trip_list"),
     path("trips/<int:pk>/", views.TripDetailView.as_view(), name="trip_detail"),
     path(
         "trips/<int:trip_pk>/items/",
