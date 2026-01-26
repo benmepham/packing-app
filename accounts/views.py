@@ -60,11 +60,6 @@ def logout_view(request: HttpRequest) -> HttpResponse:
     Otherwise, perform standard Django logout.
     """
     if request.method == "POST":
-        # Check if user has OIDC tokens in session (indicating OIDC login)
-        oidc_enabled = getattr(settings, "OIDC_ENABLED", False)
-        has_oidc_token = oidc_enabled and request.session.get("oidc_id_token") is not None
-
-        # Perform Django logout first
         logout(request)
         messages.info(request, "You have been logged out.")
 
