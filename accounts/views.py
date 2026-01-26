@@ -20,7 +20,7 @@ def login_view(request: HttpRequest) -> HttpResponse:
 
     if not password_login_enabled and oidc_enabled:
         try:
-            return redirect("accounts:oidc_authentication_init")
+            return redirect("oidc_authentication_init")
         except NoReverseMatch:
             # OIDC URLs not configured, fall through to error
             messages.error(
@@ -71,7 +71,7 @@ def logout_view(request: HttpRequest) -> HttpResponse:
         # If user logged in via OIDC, redirect to OIDC logout
         if has_oidc_token:
             try:
-                return redirect("accounts:oidc_logout")
+                return redirect("oidc_logout")
             except NoReverseMatch:
                 # OIDC URLs not configured, fall through to normal redirect
                 pass
