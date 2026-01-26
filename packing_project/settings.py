@@ -78,6 +78,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "accounts.context_processors.auth_settings",
             ],
         },
     },
@@ -176,3 +177,61 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 _secure_cookies = os.environ.get("SECURE_COOKIES", "True").lower() in ("true", "1", "yes")
 SESSION_COOKIE_SECURE = _secure_cookies
 CSRF_COOKIE_SECURE = _secure_cookies
+
+
+# =============================================================================
+# Authentication Configuration
+# =============================================================================
+
+# Enable/disable authentication methods via environment variables
+PASSWORD_LOGIN_ENABLED = os.environ.get("PASSWORD_LOGIN_ENABLED", "True").lower() in (
+    "true",
+    "1",
+    "yes",
+)
+OIDC_ENABLED = os.environ.get("OIDC_ENABLED", "False").lower() in ("true", "1", "yes")
+
+# Authentication backends - always include Django's ModelBackend for password login
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+# =============================================================================
+# OIDC Configuration (Pocket ID / OpenID Connect)
+# =============================================================================
+
+if OIDC_ENABLED:
+    # Add OIDC app and backend
+    INSTALLED_APPS.append("mozilla_django_oidc")
+    AUTHENTICATION_BACKENDS.insert(0, "accounts.oidc.PocketIDAuthBackend")
+
+    # Add session refresh middleware to handle token expiry
+    MIDDLEWARE.append("mozilla_django_oidc.middleware.SessionRefresh")
+
+    # OIDC Provider Configuration
+    OIDC_OP_BASE_URL = os.environ.get("OIDC_OP_BASE_URL", "")
+    OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", "")
+    OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", "")
+
+    # OIDC endpoints - derived from base URL
+    OIDC_OP_AUTHORIZATION_ENDPOINT = f"{OIDC_OP_BASE_URL}/authorize"
+    OIDC_OP_TOKEN_ENDPOINT = f"{OIDC_OP_BASE_URL}/token"
+    OIDC_OP_USER_ENDPOINT = f"{OIDC_OP_BASE_URL}/userinfo"
+    OIDC_OP_JWKS_ENDPOINT = f"{OIDC_OP_BASE_URL}/.well-known/jwks.json"
+
+    # OIDC signing algorithm (Pocket ID uses RS256)
+    OIDC_RP_SIGN_ALGO = "RS256"
+
+    # Request scopes - openid is required, profile/email for user info, groups for admin mapping
+    OIDC_RP_SCOPES = "openid profile email groups"
+
+    # Create Django user on first OIDC login
+    OIDC_CREATE_USER = True
+
+    # Store OIDC tokens in session (needed for logout and token refresh)
+    OIDC_STORE_ACCESS_TOKEN = True
+    OIDC_STORE_ID_TOKEN = True
+
+    # Admin/staff group mapping from OIDC groups claim
+    OIDC_ADMIN_GROUP = os.environ.get("OIDC_ADMIN_GROUP", "admin")
+    OIDC_STAFF_GROUP = os.environ.get("OIDC_STAFF_GROUP", "staff")

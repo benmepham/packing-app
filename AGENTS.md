@@ -106,6 +106,7 @@ def get_queryset(self) -> QuerySet[Trip]:
 Test file location: `<app>/tests.py`
 
 Tests should cover:
+
 - Model methods and properties
 - View authorization (users can only see their own data)
 - API endpoints
@@ -117,5 +118,5 @@ Always make commits as you go.
 Always include this footer in commit messages:
 
 ```
-AI assisted using OpenCode
+🤖 AI assisted
 ```

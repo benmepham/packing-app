@@ -6,7 +6,7 @@ A Django web application for managing packing lists for trips. Create reusable c
 
 ## Features
 
-- **User Authentication**: Self-registration with username/password login
+- **User Authentication**: Self-registration with username/password login, or OIDC/SSO (e.g., Pocket ID)
 - **Category Management**: Create reusable categories (e.g., "Toiletries", "Electronics") with items
 - **Trip Creation**: Create trips by selecting categories to auto-generate packing lists
 - **Template System**: Use existing trips as templates for new ones (copies categories and custom items)
@@ -188,9 +188,40 @@ mise run db      # Run makemigrations + migrate
 | `DJANGO_SUPERUSER_PASSWORD` | No | Auto-generated | Superuser password (printed to logs if auto-generated) |
 | `DJANGO_SUPERUSER_EMAIL` | No | `admin@example.com` | Superuser email |
 
+#### OIDC/SSO Authentication (Optional)
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `OIDC_ENABLED` | No | `False` | Enable OIDC authentication (e.g., Pocket ID) |
+| `PASSWORD_LOGIN_ENABLED` | No | `True` | Enable username/password login form |
+| `OIDC_RP_CLIENT_ID` | If OIDC enabled | - | OIDC client ID from your provider |
+| `OIDC_RP_CLIENT_SECRET` | If OIDC enabled | - | OIDC client secret from your provider |
+| `OIDC_OP_BASE_URL` | If OIDC enabled | - | OIDC provider base URL (e.g., `https://auth.example.com`) |
+| `OIDC_ADMIN_GROUP` | No | `admin` | OIDC group name that grants superuser status |
+| `OIDC_STAFF_GROUP` | No | `staff` | OIDC group name that grants staff status |
+
+### OIDC/SSO Setup (Pocket ID)
+
+The app supports OpenID Connect authentication, tested with [Pocket ID](https://github.com/pocket-id/pocket-id). To enable:
+
+1. **Create an OIDC client** in your provider with:
+   - **Redirect URI**: `https://your-app.com/accounts/oidc/callback/`
+   - **Scopes**: `openid profile email groups`
+   - **Grant type**: Authorization Code
+
+2. **Configure environment variables** as above
+
+3. **User matching**: Users are matched by `preferred_username` claim. If a user with that username exists, they'll be linked; otherwise, a new user is created.
+
+4. **Profile sync**: Email, first name, and last name are synced from OIDC claims on each login.
+
+5. **Admin/staff mapping**: Users in the configured admin group get superuser status; users in the staff group get staff status.
+
+6. **Disable password login** (optional): Set `PASSWORD_LOGIN_ENABLED=False` to only allow OIDC authentication.
+
 ### CI/CD Pipeline
 
-The GitHub Actions workflow (`.github/workflows/ci.yml`) runs linting and tests on every push/PR to main. On successful pushes to main, it builds and pushes a Docker image to `ghcr.io/<owner>/packing-app:latest`.
+The GitHub Actions workflow (`.github/workflows/ci.yml`) runs linting and tests on every push/PR to main. On successful pushes to main, it builds and pushes a Docker image to `ghcr.io/benmepham/packing-app:latest`.
 
 ### Building Locally
 
