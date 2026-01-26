@@ -39,6 +39,22 @@ class LoginViewTest(TestCase):
         response = self.client.get(reverse("core:dashboard"))
         self.assertEqual(response.status_code, 200)
 
+    def test_login_with_valid_next_url(self):
+        """Test login redirects to valid next URL."""
+        next_url = reverse("core:trip_list")
+        response = self.client.post(
+            f"{self.url}?next={next_url}", {"username": "testuser", "password": "testpass"}
+        )
+        self.assertRedirects(response, next_url)
+
+    def test_login_rejects_external_redirect(self):
+        """Test login rejects external URLs to prevent open redirect attacks."""
+        response = self.client.post(
+            f"{self.url}?next=https://evil.com", {"username": "testuser", "password": "testpass"}
+        )
+        # Should redirect to dashboard instead of external URL
+        self.assertRedirects(response, reverse("core:dashboard"))
+
 
 @override_settings(STORAGES=TEST_STORAGES)
 class RegisterViewTest(TestCase):
