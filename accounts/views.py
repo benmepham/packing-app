@@ -68,14 +68,6 @@ def logout_view(request: HttpRequest) -> HttpResponse:
         logout(request)
         messages.info(request, "You have been logged out.")
 
-        # If user logged in via OIDC, redirect to OIDC logout
-        if has_oidc_token:
-            try:
-                return redirect("oidc_logout")
-            except NoReverseMatch:
-                # OIDC URLs not configured, fall through to normal redirect
-                pass
-
     return redirect("accounts:login")
 
 
