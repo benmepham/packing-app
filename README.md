@@ -202,25 +202,14 @@ mise run db      # Run makemigrations + migrate
 
 ### OIDC/SSO Setup (Pocket ID)
 
-The app supports OpenID Connect authentication, tested with [Pocket ID](https://github.com/stonith404/pocket-id). To enable:
+The app supports OpenID Connect authentication, tested with [Pocket ID](https://github.com/pocket-id/pocket-id). To enable:
 
 1. **Create an OIDC client** in your provider with:
    - **Redirect URI**: `https://your-app.com/accounts/oidc/callback/`
    - **Scopes**: `openid profile email groups`
    - **Grant type**: Authorization Code
 
-2. **Configure environment variables**:
-
-   ```yaml
-   environment:
-     - OIDC_ENABLED=True
-     - OIDC_RP_CLIENT_ID=your-client-id
-     - OIDC_RP_CLIENT_SECRET=your-client-secret
-     - OIDC_OP_BASE_URL=https://auth.example.com
-     # Optional: customize admin/staff group names
-     - OIDC_ADMIN_GROUP=admins
-     - OIDC_STAFF_GROUP=staff
-   ```
+2. **Configure environment variables** as above
 
 3. **User matching**: Users are matched by `preferred_username` claim. If a user with that username exists, they'll be linked; otherwise, a new user is created.
 
