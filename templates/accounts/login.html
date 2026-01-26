@@ -21,7 +21,7 @@
                 {% else %}
                     {% if oidc_enabled %}
                     <div class="d-grid mb-3">
-                        <a href="{% url 'oidc_authentication_init' %}" class="btn btn-outline-primary btn-lg">
+                        <a href="{% url 'accounts:oidc_authentication_init' %}" class="btn btn-outline-primary btn-lg">
                             <i class="bi bi-box-arrow-in-right me-2"></i>Sign in with SSO
                         </a>
                     </div>

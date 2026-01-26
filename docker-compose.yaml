@@ -27,6 +27,23 @@ services:
       # - DJANGO_SUPERUSER_USERNAME=admin
       # - DJANGO_SUPERUSER_PASSWORD=your-secure-password
       # - DJANGO_SUPERUSER_EMAIL=admin@example.com
+      #
+      # Authentication Configuration
+      # Enable/disable password login (default: True)
+      # - PASSWORD_LOGIN_ENABLED=True
+      #
+      # OIDC/SSO Configuration (optional)
+      # Uncomment and configure to enable OIDC authentication
+      # - OIDC_ENABLED=True
+      # - OIDC_OP_BASE_URL=https://your-oidc-provider.com
+      # - OIDC_RP_CLIENT_ID=your-client-id
+      # - OIDC_RP_CLIENT_SECRET=your-client-secret
+      # Optional: Map OIDC groups to Django admin/staff permissions
+      # - OIDC_ADMIN_GROUP=admin
+      # - OIDC_STAFF_GROUP=staff
+      #
+      # Note: Your OIDC provider must be configured with this callback URL:
+      # https://your-domain.com/accounts/oidc/callback/
     volumes:
       - sqlite_data:/app/data
     restart: unless-stopped

@@ -20,7 +20,7 @@ def login_view(request: HttpRequest) -> HttpResponse:
 
     if not password_login_enabled and oidc_enabled:
         try:
-            return redirect("oidc_authentication_init")
+            return redirect("accounts:oidc_authentication_init")
         except NoReverseMatch:
             # OIDC URLs not configured, fall through to error
             messages.error(
@@ -52,10 +52,30 @@ def login_view(request: HttpRequest) -> HttpResponse:
 
 
 def logout_view(request: HttpRequest) -> HttpResponse:
-    """Handle user logout."""
+    """
+    Handle user logout.
+
+    If the user logged in via OIDC (detected by session tokens),
+    redirect to the OIDC logout endpoint to perform single-logout.
+    Otherwise, perform standard Django logout.
+    """
     if request.method == "POST":
+        # Check if user has OIDC tokens in session (indicating OIDC login)
+        oidc_enabled = getattr(settings, "OIDC_ENABLED", False)
+        has_oidc_token = oidc_enabled and request.session.get("oidc_id_token") is not None
+
+        # Perform Django logout first
         logout(request)
         messages.info(request, "You have been logged out.")
+
+        # If user logged in via OIDC, redirect to OIDC logout
+        if has_oidc_token:
+            try:
+                return redirect("accounts:oidc_logout")
+            except NoReverseMatch:
+                # OIDC URLs not configured, fall through to normal redirect
+                pass
+
     return redirect("accounts:login")
 
 
