@@ -3,7 +3,7 @@
   "private": true,
   "description": "Frontend tooling for packing-app",
   "devDependencies": {
-    "@biomejs/biome": "^1.9.0"
+    "@biomejs/biome": "^2.3.12"
   },
   "scripts": {
     "lint": "biome check static/",
