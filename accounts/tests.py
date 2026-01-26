@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from accounts.oidc import PocketIDAuthBackend
+from accounts.oidc import PocketIDAuthBackend as OIDCAuthBackend
 
 # Use simple staticfiles storage for tests (avoids manifest requirement)
 TEST_STORAGES = {
@@ -108,11 +108,11 @@ OIDC_TEST_SETTINGS = {
 
 
 @override_settings(**OIDC_TEST_SETTINGS)
-class PocketIDAuthBackendTest(TestCase):
+class OIDCAuthBackendTest(TestCase):
     """Tests for the custom OIDC authentication backend."""
 
     def setUp(self):
-        self.backend = PocketIDAuthBackend()
+        self.backend = OIDCAuthBackend()
 
     def test_filter_users_by_claims_finds_existing_user(self):
         """Test that filter_users_by_claims finds a user by preferred_username."""

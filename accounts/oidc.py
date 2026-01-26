@@ -1,4 +1,4 @@
-"""Custom OIDC authentication backend for Pocket ID integration."""
+"""Custom OIDC authentication backend with username matching and group sync."""
 
 from __future__ import annotations
 
@@ -18,7 +18,9 @@ User = get_user_model()
 
 class PocketIDAuthBackend(OIDCAuthenticationBackend):
     """
-    Custom OIDC backend for Pocket ID.
+    Custom OIDC authentication backend.
+
+    Compatible with any OIDC provider (tested with Pocket ID).
 
     Features:
     - Matches users by username (from preferred_username claim)
