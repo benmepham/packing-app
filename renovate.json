@@ -1,0 +1,55 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Renovate config for CDN link updates only. Dependabot handles pip, npm, and GitHub Actions.",
+  "extends": [
+    "config:recommended"
+  ],
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "timezone": "UTC",
+  "labels": ["dependencies"],
+  "commitMessagePrefix": "chore(deps):",
+  "prConcurrentLimit": 5,
+  "enabledManagers": ["regex"],
+  "packageRules": [
+    {
+      "description": "Group Bootstrap CDN updates",
+      "matchManagers": ["regex"],
+      "matchPackagePatterns": ["^bootstrap"],
+      "groupName": "bootstrap cdn"
+    }
+  ],
+  "regexManagers": [
+    {
+      "description": "Update Bootstrap CSS CDN links",
+      "fileMatch": ["\\.html$"],
+      "matchStrings": [
+        "https://cdn\\.jsdelivr\\.net/npm/bootstrap@(?<currentValue>[0-9.]+)/dist/css/bootstrap(?:\\.min)?\\.css"
+      ],
+      "datasourceTemplate": "npm",
+      "depNameTemplate": "bootstrap",
+      "versioningTemplate": "npm"
+    },
+    {
+      "description": "Update Bootstrap JS CDN links",
+      "fileMatch": ["\\.html$"],
+      "matchStrings": [
+        "https://cdn\\.jsdelivr\\.net/npm/bootstrap@(?<currentValue>[0-9.]+)/dist/js/bootstrap(?:\\.bundle)?(?:\\.min)?\\.js"
+      ],
+      "datasourceTemplate": "npm",
+      "depNameTemplate": "bootstrap",
+      "versioningTemplate": "npm"
+    },
+    {
+      "description": "Update Bootstrap Icons CDN links",
+      "fileMatch": ["\\.html$"],
+      "matchStrings": [
+        "https://cdn\\.jsdelivr\\.net/npm/bootstrap-icons@(?<currentValue>[0-9.]+)/font/bootstrap-icons\\.css"
+      ],
+      "datasourceTemplate": "npm",
+      "depNameTemplate": "bootstrap-icons",
+      "versioningTemplate": "npm"
+    }
+  ]
+}
