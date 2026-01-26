@@ -235,3 +235,7 @@ if OIDC_ENABLED:
     # Admin/staff group mapping from OIDC groups claim
     OIDC_ADMIN_GROUP = os.environ.get("OIDC_ADMIN_GROUP", "admin")
     OIDC_STAFF_GROUP = os.environ.get("OIDC_STAFF_GROUP", "staff")
+
+    # OIDC URLs are included under the 'accounts' namespace, so we need to
+    # tell mozilla_django_oidc to use the namespaced URL for the callback
+    OIDC_AUTHENTICATION_CALLBACK_URL = "accounts:oidc_authentication_callback"
