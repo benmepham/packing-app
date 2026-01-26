@@ -1,5 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Renovate config for CDN link updates only. Dependabot handles pip, npm, and GitHub Actions.",
   "extends": [
     "config:recommended"
   ],
@@ -10,40 +11,13 @@
   "labels": ["dependencies"],
   "commitMessagePrefix": "chore(deps):",
   "prConcurrentLimit": 5,
+  "enabledManagers": ["regex"],
   "packageRules": [
-    {
-      "description": "Group Python Django-related packages",
-      "matchDatasources": ["pypi"],
-      "matchPackagePatterns": ["^django"],
-      "groupName": "django packages",
-      "matchUpdateTypes": ["minor", "patch"]
-    },
-    {
-      "description": "Group Python dev dependencies",
-      "matchDatasources": ["pypi"],
-      "matchPackageNames": ["ruff", "mypy", "djlint"],
-      "groupName": "python dev dependencies",
-      "matchUpdateTypes": ["minor", "patch"]
-    },
-    {
-      "description": "Group JavaScript dev dependencies",
-      "matchDatasources": ["npm"],
-      "matchDepTypes": ["devDependencies"],
-      "groupName": "javascript dev dependencies",
-      "matchUpdateTypes": ["minor", "patch"]
-    },
-    {
-      "description": "Group GitHub Actions updates",
-      "matchManagers": ["github-actions"],
-      "groupName": "github actions",
-      "commitMessagePrefix": "chore(ci):"
-    },
     {
       "description": "Group Bootstrap CDN updates",
       "matchManagers": ["regex"],
       "matchPackagePatterns": ["^bootstrap"],
-      "groupName": "bootstrap cdn",
-      "commitMessagePrefix": "chore(deps):"
+      "groupName": "bootstrap cdn"
     }
   ],
   "regexManagers": [
