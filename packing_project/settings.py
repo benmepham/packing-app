@@ -213,10 +213,10 @@ if OIDC_ENABLED:
     OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", "")
     OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", "")
 
-    # OIDC endpoints - derived from base URL
+    # OIDC endpoints - derived from base URL (Pocket ID uses /api/oidc/ prefix)
     OIDC_OP_AUTHORIZATION_ENDPOINT = f"{OIDC_OP_BASE_URL}/authorize"
-    OIDC_OP_TOKEN_ENDPOINT = f"{OIDC_OP_BASE_URL}/token"
-    OIDC_OP_USER_ENDPOINT = f"{OIDC_OP_BASE_URL}/userinfo"
+    OIDC_OP_TOKEN_ENDPOINT = f"{OIDC_OP_BASE_URL}/api/oidc/token"
+    OIDC_OP_USER_ENDPOINT = f"{OIDC_OP_BASE_URL}/api/oidc/userinfo"
     OIDC_OP_JWKS_ENDPOINT = f"{OIDC_OP_BASE_URL}/.well-known/jwks.json"
 
     # OIDC signing algorithm (Pocket ID uses RS256)
