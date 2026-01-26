@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
+from django.urls import NoReverseMatch
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from .forms import CustomAuthenticationForm, CustomUserCreationForm
@@ -18,7 +19,15 @@ def login_view(request: HttpRequest) -> HttpResponse:
     oidc_enabled = getattr(settings, "OIDC_ENABLED", False)
 
     if not password_login_enabled and oidc_enabled:
-        return redirect("oidc_authentication_init")
+        try:
+            return redirect("oidc_authentication_init")
+        except NoReverseMatch:
+            # OIDC URLs not configured, fall through to error
+            messages.error(
+                request,
+                "Password login is disabled but OIDC is not properly configured.",
+            )
+            return render(request, "accounts/login.html", {"form": None})
 
     if request.method == "POST":
         form = CustomAuthenticationForm(request, data=request.POST)

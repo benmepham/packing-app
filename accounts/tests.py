@@ -55,6 +55,14 @@ class LoginViewTest(TestCase):
         # Should redirect to dashboard instead of external URL
         self.assertRedirects(response, reverse("core:dashboard"))
 
+    @override_settings(PASSWORD_LOGIN_ENABLED=False, OIDC_ENABLED=False)
+    def test_login_with_password_disabled_shows_error(self):
+        """Test that disabling password login without OIDC shows an error message."""
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        # When password login is disabled but OIDC isn't configured, show error
+        self.assertContains(response, "Password login is disabled")
+
 
 @override_settings(STORAGES=TEST_STORAGES)
 class RegisterViewTest(TestCase):
