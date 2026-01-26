@@ -232,6 +232,9 @@ if OIDC_ENABLED:
     OIDC_STORE_ACCESS_TOKEN = True
     OIDC_STORE_ID_TOKEN = True
 
+    # Allow logout via GET (needed because redirect from POST logout uses GET)
+    ALLOW_LOGOUT_GET_METHOD = True
+
     # Admin/staff group mapping from OIDC groups claim
     OIDC_ADMIN_GROUP = os.environ.get("OIDC_ADMIN_GROUP", "admin")
     OIDC_STAFF_GROUP = os.environ.get("OIDC_STAFF_GROUP", "staff")
