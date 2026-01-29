@@ -7,6 +7,11 @@ app_name = "api"
 urlpatterns = [
     # Categories
     path(
+        "categories/import/",
+        views.CategoryImportView.as_view(),
+        name="category_import",
+    ),
+    path(
         "categories/<int:pk>/",
         views.CategoryDetailView.as_view(),
         name="category_detail",

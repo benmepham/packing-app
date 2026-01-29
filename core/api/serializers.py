@@ -3,6 +3,25 @@ from rest_framework import serializers
 from ..models import Category, CategoryItem, Trip, TripCategory, TripItem
 
 
+class CategoryImportItemSerializer(serializers.Serializer):
+    """Serializer for a single row in the CSV import."""
+
+    category = serializers.CharField(max_length=100)
+    item = serializers.CharField(max_length=100)
+
+
+class CategoryImportSerializer(serializers.Serializer):
+    """Serializer for bulk importing categories and items from CSV."""
+
+    items = CategoryImportItemSerializer(many=True)
+
+    def validate_items(self, value: list[dict]) -> list[dict]:
+        """Validate that items list is not empty."""
+        if not value:
+            raise serializers.ValidationError("At least one item is required.")
+        return value
+
+
 class CategoryItemSerializer(serializers.ModelSerializer):
     """Serializer for category items."""
 
