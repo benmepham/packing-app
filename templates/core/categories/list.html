@@ -312,8 +312,13 @@ async function handleImport() {
         modal.hide();
         
         // Show success message and reload
-        const message = `Imported ${result.items_created} items into ${result.categories_created} new categories.` +
-            (result.items_skipped > 0 ? ` ${result.items_skipped} duplicate items skipped.` : '');
+        let message = `Imported ${result.items_created} items into ${result.categories_created} new categories.`;
+        if (result.categories_existing > 0) {
+            message += ` ${result.categories_existing} existing categories updated.`;
+        }
+        if (result.items_skipped > 0) {
+            message += ` ${result.items_skipped} duplicate items skipped.`;
+        }
         
         // Store message in sessionStorage to show after reload
         sessionStorage.setItem('importSuccess', message);

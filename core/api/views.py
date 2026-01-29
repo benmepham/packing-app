@@ -151,6 +151,7 @@ class CategoryImportView(APIView):
                 categories_map[category_name].append(item_name)
 
         categories_created = 0
+        categories_existing = 0
         items_created = 0
         items_skipped = 0
 
@@ -160,6 +161,8 @@ class CategoryImportView(APIView):
                 category, created = Category.objects.get_or_create(user=user, name=category_name)
                 if created:
                     categories_created += 1
+                else:
+                    categories_existing += 1
 
                 # Get existing item names for this category
                 existing_items = set(category.items.values_list("name", flat=True))
@@ -176,6 +179,7 @@ class CategoryImportView(APIView):
         return Response(
             {
                 "categories_created": categories_created,
+                "categories_existing": categories_existing,
                 "items_created": items_created,
                 "items_skipped": items_skipped,
             },

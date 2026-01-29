@@ -258,6 +258,7 @@ class CategoryImportAPITest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["categories_created"], 2)
+        self.assertEqual(response.data["categories_existing"], 0)
         self.assertEqual(response.data["items_created"], 3)
         self.assertEqual(response.data["items_skipped"], 0)
 
@@ -284,6 +285,7 @@ class CategoryImportAPITest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["categories_created"], 0)
+        self.assertEqual(response.data["categories_existing"], 1)
         self.assertEqual(response.data["items_created"], 1)
         self.assertEqual(response.data["items_skipped"], 1)
 
