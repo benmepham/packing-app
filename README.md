@@ -13,6 +13,7 @@ A Django web application for managing packing lists for trips. Create reusable c
 - **Interactive Checklist**: Toggle items as packed with real-time progress tracking
 - **Custom Items**: Add items directly to trips, with option to save them to categories for future use
 - **Responsive Design**: Works on mobile and desktop with Bootstrap 5
+- **CSV Import**: Bulk import categories and items from CSV files
 
 ## Tech Stack
 
