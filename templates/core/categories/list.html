@@ -172,7 +172,7 @@ function handleFileSelect(event) {
     parsedCSVData = [];
     importBtn.disabled = true;
     preview.classList.add('d-none');
-    errorDiv.classList.add('d-none');
+    if (errorDiv) errorDiv.classList.add('d-none');
     
     if (!file) return;
     
@@ -283,8 +283,10 @@ function showPreview(data) {
 
 function showImportError(message) {
     const errorDiv = document.getElementById('importError');
-    errorDiv.textContent = message;
-    errorDiv.classList.remove('d-none');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('d-none');
+    }
 }
 
 function escapeHtml(text) {
@@ -300,7 +302,7 @@ async function handleImport() {
     
     importBtn.disabled = true;
     spinner.classList.remove('d-none');
-    errorDiv.classList.add('d-none');
+    if (errorDiv) errorDiv.classList.add('d-none');
     
     try {
         const result = await apiRequest('/api/categories/import/', 'POST', {
