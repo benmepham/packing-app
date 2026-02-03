@@ -227,3 +227,111 @@ class TripItemAPITest(APITestCase):
 
         new_item = TripItem.objects.get(name="Beach Towel")
         self.assertTrue(new_item.is_custom)
+
+
+class CategoryImportAPITest(APITestCase):
+    """Tests for the Category Import API endpoint."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpass")
+        self.other_user = User.objects.create_user(username="other", password="testpass")
+        self.client = APIClient()
+        self.url = reverse("api:category_import")
+
+    def test_import_requires_auth(self):
+        """Test that import API requires authentication."""
+        response = self.client.post(self.url, {"items": []})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_import_creates_categories_and_items(self):
+        """Test that import creates new categories and items."""
+        self.client.login(username="testuser", password="testpass")
+
+        data = {
+            "items": [
+                {"category": "Toiletries", "item": "Toothbrush"},
+                {"category": "Toiletries", "item": "Toothpaste"},
+                {"category": "Clothing", "item": "T-shirts"},
+            ]
+        }
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["categories_created"], 2)
+        self.assertEqual(response.data["categories_existing"], 0)
+        self.assertEqual(response.data["items_created"], 3)
+        self.assertEqual(response.data["items_skipped"], 0)
+
+        # Verify categories were created for the correct user
+        self.assertEqual(Category.objects.filter(user=self.user).count(), 2)
+        toiletries = Category.objects.get(user=self.user, name="Toiletries")
+        self.assertEqual(toiletries.items.count(), 2)
+
+    def test_import_merges_with_existing_categories(self):
+        """Test that import adds items to existing categories."""
+        self.client.login(username="testuser", password="testpass")
+
+        # Create an existing category with an item
+        existing_category = Category.objects.create(user=self.user, name="Toiletries")
+        CategoryItem.objects.create(category=existing_category, name="Soap")
+
+        data = {
+            "items": [
+                {"category": "Toiletries", "item": "Toothbrush"},
+                {"category": "Toiletries", "item": "Soap"},  # Duplicate
+            ]
+        }
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["categories_created"], 0)
+        self.assertEqual(response.data["categories_existing"], 1)
+        self.assertEqual(response.data["items_created"], 1)
+        self.assertEqual(response.data["items_skipped"], 1)
+
+        # Verify category still has 2 items (Soap + Toothbrush)
+        existing_category.refresh_from_db()
+        self.assertEqual(existing_category.items.count(), 2)
+
+    def test_import_user_isolation(self):
+        """Test that import only affects the authenticated user's data."""
+        # Create category for other user
+        other_category = Category.objects.create(user=self.other_user, name="Toiletries")
+        CategoryItem.objects.create(category=other_category, name="Soap")
+
+        self.client.login(username="testuser", password="testpass")
+
+        data = {"items": [{"category": "Toiletries", "item": "Toothbrush"}]}
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # Should create a new category for testuser, not merge with other_user's
+        self.assertEqual(response.data["categories_created"], 1)
+        self.assertEqual(Category.objects.filter(user=self.user).count(), 1)
+        self.assertEqual(Category.objects.filter(user=self.other_user).count(), 1)
+
+    def test_import_empty_items_validation(self):
+        """Test that import validates empty items list."""
+        self.client.login(username="testuser", password="testpass")
+
+        response = self.client.post(self.url, {"items": []}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_import_deduplicates_within_csv(self):
+        """Test that duplicate items within the CSV are handled."""
+        self.client.login(username="testuser", password="testpass")
+
+        data = {
+            "items": [
+                {"category": "Toiletries", "item": "Toothbrush"},
+                {"category": "Toiletries", "item": "Toothbrush"},  # Duplicate in CSV
+            ]
+        }
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["items_created"], 1)
+
+        # Verify only one item was created
+        category = Category.objects.get(user=self.user, name="Toiletries")
+        self.assertEqual(category.items.count(), 1)

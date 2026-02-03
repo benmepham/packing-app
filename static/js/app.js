@@ -345,10 +345,6 @@ function editTripItem(tripId, itemId, button) {
 
 // Delete trip item
 async function deleteTripItem(tripId, itemId, button) {
-    if (!confirmDelete('Remove this item from the trip?')) {
-        return;
-    }
-
     try {
         await apiRequest(`/api/trips/${tripId}/items/${itemId}/`, 'DELETE');
 

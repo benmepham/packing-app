@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
@@ -7,6 +8,7 @@ from rest_framework.views import APIView
 from ..models import Category, CategoryItem, Trip, TripItem
 from .serializers import (
     CategoryDetailSerializer,
+    CategoryImportSerializer,
     CategoryItemSerializer,
     TripDetailSerializer,
     TripItemSerializer,
@@ -124,3 +126,62 @@ class TripItemAddToCategoryView(APIView):
         item.save()
 
         return Response({"success": True}, status=status.HTTP_201_CREATED)
+
+
+class CategoryImportView(APIView):
+    """Import categories and items from CSV data."""
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = CategoryImportSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        items_data = serializer.validated_data["items"]
+        user = request.user
+
+        # Group items by category
+        categories_map: dict[str, list[str]] = {}
+        for row in items_data:
+            category_name = row["category"].strip()
+            item_name = row["item"].strip()
+            if category_name not in categories_map:
+                categories_map[category_name] = []
+            if item_name not in categories_map[category_name]:
+                categories_map[category_name].append(item_name)
+
+        categories_created = 0
+        categories_existing = 0
+        items_created = 0
+        items_skipped = 0
+
+        with transaction.atomic():
+            for category_name, item_names in categories_map.items():
+                # Get or create category
+                category, created = Category.objects.get_or_create(user=user, name=category_name)
+                if created:
+                    categories_created += 1
+                else:
+                    categories_existing += 1
+
+                # Get existing item names for this category
+                existing_items = set(category.items.values_list("name", flat=True))
+
+                # Create new items
+                for item_name in item_names:
+                    if item_name in existing_items:
+                        items_skipped += 1
+                    else:
+                        CategoryItem.objects.create(category=category, name=item_name)
+                        items_created += 1
+                        existing_items.add(item_name)
+
+        return Response(
+            {
+                "categories_created": categories_created,
+                "categories_existing": categories_existing,
+                "items_created": items_created,
+                "items_skipped": items_skipped,
+            },
+            status=status.HTTP_201_CREATED,
+        )
