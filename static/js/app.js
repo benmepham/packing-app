@@ -176,6 +176,13 @@ async function deleteItem(categoryId, itemId, button) {
         await apiRequest(`/api/categories/${categoryId}/items/${itemId}/`, 'DELETE');
 
         const listItem = button.closest('.list-group-item');
+
+        // Dispose Bootstrap tooltips before removing element
+        listItem.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => {
+            const tooltip = bootstrap.Tooltip.getInstance(el);
+            if (tooltip) tooltip.dispose();
+        });
+
         listItem.remove();
     } catch (error) {
         showAlert('danger', error.message);
@@ -349,6 +356,14 @@ async function deleteTripItem(tripId, itemId, button) {
         await apiRequest(`/api/trips/${tripId}/items/${itemId}/`, 'DELETE');
 
         const listItem = button.closest('.list-group-item');
+
+        // Dispose Bootstrap tooltips before removing element to prevent
+        // orphaned tooltip divs (especially visible on mobile/touch devices)
+        listItem.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => {
+            const tooltip = bootstrap.Tooltip.getInstance(el);
+            if (tooltip) tooltip.dispose();
+        });
+
         listItem.remove();
 
         // Update progress bar
