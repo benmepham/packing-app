@@ -205,9 +205,6 @@ if OIDC_ENABLED:
     INSTALLED_APPS.append("mozilla_django_oidc")
     AUTHENTICATION_BACKENDS.insert(0, "accounts.oidc.PocketIDAuthBackend")
 
-    # Add session refresh middleware to handle token expiry
-    MIDDLEWARE.append("mozilla_django_oidc.middleware.SessionRefresh")
-
     # OIDC Provider Configuration
     OIDC_OP_BASE_URL = os.environ.get("OIDC_OP_BASE_URL", "")
     OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", "")

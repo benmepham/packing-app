@@ -203,6 +203,8 @@ mise run db      # Run makemigrations + migrate
 
 ### OIDC/SSO Setup (Pocket ID)
 
+NOTE: The app doesn't refresh OIDC sessions, if a user is disabled in the OIDC provider, they will stay logged in for the full Django session length.
+
 The app supports OpenID Connect authentication, tested with [Pocket ID](https://github.com/pocket-id/pocket-id). To enable:
 
 1. **Create an OIDC client** in your provider with:
