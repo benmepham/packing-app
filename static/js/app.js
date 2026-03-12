@@ -66,6 +66,9 @@ async function toggleItemPacked(tripId, itemId, checkbox) {
             listItem.classList.remove('item-packed');
         }
 
+        // Float unpacked items to the top of the list
+        reorderItems(listItem);
+
         // Update progress bar if present
         updateTripProgress(tripId);
     } catch (error) {
@@ -73,6 +76,22 @@ async function toggleItemPacked(tripId, itemId, checkbox) {
         checkbox.checked = !isPacked;
         showAlert('danger', error.message);
     }
+}
+
+// Reorder items so unpacked items float to the top of each list
+function reorderItems(listItem) {
+    const ul = listItem.closest('.list-group');
+    if (!ul) return;
+
+    const items = Array.from(ul.querySelectorAll('.list-group-item'));
+    // Stable sort: unpacked items first, packed items last
+    items.sort((a, b) => {
+        const aPacked = a.classList.contains('item-packed') ? 1 : 0;
+        const bPacked = b.classList.contains('item-packed') ? 1 : 0;
+        return aPacked - bPacked;
+    });
+
+    items.forEach((item) => ul.appendChild(item));
 }
 
 // Update trip progress bar

@@ -100,7 +100,7 @@ class TripItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["trip_category__category_name", "is_custom", "name"]
+        ordering = ["trip_category__category_name", "is_packed", "is_custom", "name"]
 
     def __str__(self):
         return f"{self.name} ({'packed' if self.is_packed else 'unpacked'})"
