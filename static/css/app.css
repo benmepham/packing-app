@@ -63,7 +63,7 @@
 }
 
 .card-header .btn-link:hover {
-    color: #0d6efd !important;
+    color: #0d6efd;
 }
 
 /* Ensure item name doesn't wrap awkwardly */

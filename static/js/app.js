@@ -51,6 +51,7 @@ async function apiRequest(url, method = 'GET', data = null) {
 }
 
 // Toggle item packed status
+// biome-ignore lint/correctness/noUnusedVariables: called from template
 async function toggleItemPacked(tripId, itemId, checkbox) {
     const isPacked = checkbox.checked;
     const listItem = checkbox.closest('.list-group-item');
@@ -91,7 +92,9 @@ function reorderItems(listItem) {
         return aPacked - bPacked;
     });
 
-    items.forEach((item) => ul.appendChild(item));
+    items.forEach((item) => {
+        ul.appendChild(item);
+    });
 }
 
 // Update trip progress bar
@@ -154,6 +157,7 @@ function confirmDelete(message) {
 }
 
 // Add item to category inline
+// biome-ignore lint/correctness/noUnusedVariables: called from template
 async function addItemToCategory(categoryId, itemName, listElement) {
     try {
         const item = await apiRequest(`/api/categories/${categoryId}/items/`, 'POST', {
@@ -186,6 +190,7 @@ async function addItemToCategory(categoryId, itemName, listElement) {
 }
 
 // Delete item from category
+// biome-ignore lint/correctness/noUnusedVariables: called from template
 async function deleteItem(categoryId, itemId, button) {
     if (!confirmDelete('Are you sure you want to delete this item?')) {
         return;
@@ -209,6 +214,7 @@ async function deleteItem(categoryId, itemId, button) {
 }
 
 // Add item to trip
+// biome-ignore lint/correctness/noUnusedVariables: called from template
 async function addItemToTrip(tripId, itemName, categoryId = null) {
     try {
         const data = { name: itemName };
@@ -225,6 +231,7 @@ async function addItemToTrip(tripId, itemName, categoryId = null) {
 }
 
 // Delete category
+// biome-ignore lint/correctness/noUnusedVariables: called from template
 async function deleteCategory(categoryId, element) {
     if (!confirmDelete('Are you sure you want to delete this category and all its items?')) {
         return;
@@ -317,6 +324,7 @@ function createInlineEdit(textElement, currentValue, onSave) {
 }
 
 // Edit category name
+// biome-ignore lint/correctness/noUnusedVariables: called from template
 function editCategory(categoryId, button) {
     const card = button.closest('.card');
     const nameElement = card.querySelector('.category-name');
@@ -328,6 +336,8 @@ function editCategory(categoryId, button) {
 }
 
 // Edit trip name
+// biome-ignore lint/correctness/noUnusedVariables: called from template
+// biome-ignore lint/correctness/noUnusedFunctionParameters: called from template
 function editTripName(tripId, button) {
     const nameElement = document.querySelector('.trip-name');
     const currentName = nameElement.textContent.trim();
@@ -345,6 +355,7 @@ function editTripName(tripId, button) {
 }
 
 // Edit category item name
+// biome-ignore lint/correctness/noUnusedVariables: called from template
 function editCategoryItem(categoryId, itemId, button) {
     const listItem = button.closest('.list-group-item');
     const nameElement = listItem.querySelector('.item-name');
@@ -358,6 +369,7 @@ function editCategoryItem(categoryId, itemId, button) {
 }
 
 // Edit trip item name
+// biome-ignore lint/correctness/noUnusedVariables: called from template
 function editTripItem(tripId, itemId, button) {
     const listItem = button.closest('.list-group-item');
     const label = listItem.querySelector('.form-check-label');
@@ -370,6 +382,7 @@ function editTripItem(tripId, itemId, button) {
 }
 
 // Delete trip item
+// biome-ignore lint/correctness/noUnusedVariables: called from template
 async function deleteTripItem(tripId, itemId, button) {
     try {
         await apiRequest(`/api/trips/${tripId}/items/${itemId}/`, 'DELETE');
